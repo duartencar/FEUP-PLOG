@@ -64,7 +64,32 @@ mainMenu :-
     mainMenu
 ).
 
-gameModeMenu :- write('game!!!!!'), nl.
+printGameModeMenu :- 
+    clearConsole,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('|    Frozen Forest     |'), nl,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('|                      |'), nl,
+    write('| 1 - Player Vs Player |'), nl,
+    write('|  2 - Bot Vs PLayer   |'), nl,
+    write('|       3 - Exit       |'), nl,
+    write('|                      |'), nl,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('Choose an option: '), nl.
+
+gameModeMenu :-
+    printGameModeMenu,
+    getChar(Option),
+    (
+    Option = '1' -> gameModeMenu, mainMenu;
+    Option = '2' -> helpMenu, mainMenu;
+    Option = '3';
+    nl,
+    write('Error: invalid input.'), nl,
+    pressEnterToContinue, nl,
+    mainMenu
+).
+
 helpMenu :- write('help!!!!!'), nl.
 clearConsole :- write('\e[2J').
     
