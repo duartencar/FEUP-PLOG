@@ -1,18 +1,6 @@
 rowGuides(['1', '2', '3', '4', '5', '6', '7', '8', '9']).
 printColumnGuide :- write('   a  b  c  d  e  f  g  h  i').
 
-initialBoard(
-    [['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']]
-    ).
-
 printRowValues([]).
 printRowValues([Value | OtherValues]) :- write(Value), write('  '), printRowValues(OtherValues).
 
