@@ -69,8 +69,34 @@ gameModeMenu :-
     printGameModeMenu,
     getChar(Option),
     (
-    Option = '1' -> gameModeMenu, mainMenu;
-    Option = '2' -> helpMenu, mainMenu;
+    Option = '1' -> createPlayerVsPlayerGame(G), playGame(G);
+    Option = '2' -> botOptionsMenu, mainMenu;
+    Option = '3';
+    nl,
+    write('Error: invalid input.'), nl,
+    pressEnterToContinue, nl,
+    mainMenu
+).
+
+printBotOptionsMenu :- 
+    clearConsole,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('|    Frozen Forest     |'), nl,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('|                      |'), nl,
+    write('|     1 - Easy Bot     |'), nl,
+    write('|     2 - Hard Bot     |'), nl,
+    write('|       3 - Exit       |'), nl,
+    write('|                      |'), nl,
+    write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
+    write('Choose an option: '), nl.
+
+botOptionsMenu :- 
+    printBotOptionsMenu,
+    getChar(Option),
+    (
+    Option = '1' -> createPlayerVsBotGame(Game, 'easy'), playGame(Game);
+    Option = '2' -> createPlayerVsBotGame(Game, 'hard'), playGame(Game);
     Option = '3';
     nl,
     write('Error: invalid input.'), nl,
