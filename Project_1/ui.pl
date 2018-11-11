@@ -1,4 +1,8 @@
-rowGuides(['1', '2', '3', '4', '5', '6', '7', '8', '9']).
+lineGuides([1, 2, 3, 4, 5, 6, 7, 8, 9]).
+rowGuides(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']).
+
+
+
 printColumnGuide :- write('   a  b  c  d  e  f  g  h  i').
 
 printRowValues([]).
@@ -11,7 +15,7 @@ printRestOfTheBoard([], []).
 printRestOfTheBoard([Row | OtherRows], [Identifier | OtherIdentifiers]) :- printBoardRow(Row, Identifier), nl, nl, printRestOfTheBoard(OtherRows, OtherIdentifiers).
 
 
-printBoard(Board) :- printColumnGuide, nl, nl, rowGuides(RI), printRestOfTheBoard(Board, RI), nl.
+printBoard(Board) :- printColumnGuide, nl, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
 
 printMainMenu :-
     clearConsole,
@@ -29,8 +33,16 @@ printMainMenu :-
 getCoordinates(Coord) :- read(Coord), print(Coord).
 
 getChar(Option):-
-	get_char(Option),print(Option), 
-	get_char(_).
+	get_char(Option), 
+    discardInputChar.
+
+getInt(Input):-
+	get_code(TempInput),
+    Input is TempInput - 48,
+    discardInputChar.
+
+discardInputChar:-
+	get_code(_).
 
 pressEnterToContinue:-
 	write('Press <Enter> to continue.'), nl,
@@ -103,6 +115,24 @@ botOptionsMenu :-
     pressEnterToContinue, nl,
     mainMenu
 ).
+
+getCoord(Coords) :- 
+    nl,
+    write('Insert column: '),
+    getChar(Col),
+    write('Insert line: '),
+    getInt(Line),
+    Coords = [Col, Line],
+    print(Coords).
+
+
+askPlayerToInsertPlay(Player, Coords) :- 
+    (
+    Player = 'player1' -> write('Player1 turn. ');
+    Player = 'player2' -> write('Player2 turn. ');
+    Player = _ -> ;
+    ),
+    getCoord(Coords).
 
 helpMenu :- write('help!!!!!'), nl.
 clearConsole :- write('\e[2J').
