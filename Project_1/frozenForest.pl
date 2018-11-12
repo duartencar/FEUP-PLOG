@@ -18,7 +18,7 @@ getHumanPlay(OldGameState, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    %clearConsole,
+    clearConsole,
     printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(Player, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
