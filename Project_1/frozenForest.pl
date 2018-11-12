@@ -2,7 +2,8 @@
 :- use_module(library(lists)).
 :- include('game.pl').
 :- include('ui.pl').
-
+:- include('rules.pl').
+iso(false).
 
 frozenForest :- mainMenu.
 
@@ -14,15 +15,15 @@ playGame(G) :-
     playGame(NG).
 
 getHumanPlay(OldGameState, NewGameState) :-
-    getGameBoard(OldGameState, Board),
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
+    getGameBoard(OldGameState, Board),
     repeat,
     %clearConsole,
-    printBoard(Board),
+    printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(Player, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
     convertToMatrixCoords(Coords, NewCoords),
-    %verificar se é possível mover personagem para as coordenadas,
+    checkPlayerPlans(OldGameState, NewCoords),
     updateBoard(OldGameState, Board, NewBoard, NewCoords),
     updateGame(OldGameState, NewGameState, NewBoard, NewCoords).
     

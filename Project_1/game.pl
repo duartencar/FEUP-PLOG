@@ -60,13 +60,11 @@ getY(Coords, Y) :- nth0(1, Coords, Y).
 
 getPlayerToPlay(G, P) :- getCharTurn(G, Char), playerChar(Char, P).
 
-setNewMinaCoords(G, NewCoords) :-  
-    getMinaCoordinates(G, MinaCoords),
-    print('Old coords'),
-    print(MinaCoords),
-    =(MinaCoords, NewCoords),
-    print('New Coords'),
-    print(MinaCoords).
+areCoordsValid(Coords) :- 
+    getX(Coords, X),
+    getY(Coords, Y),
+    X >= 0, X =< 9,
+    Y >= 0, Y =< 9.
 
 
 
@@ -93,7 +91,7 @@ convertXValue(X, NewX) :-
         X == 'h' -> NewX = 7;
         X == 'i' -> NewX = 8;
         X ==  _ -> ;
-    ), print('Converted').
+    ).
     
 
 checkIfCoordsAreValid(Coords) :-
@@ -112,7 +110,11 @@ convertToMatrixCoords(Coords, ConvertedCoords) :-
     getX(Coords, X),
     NewY is Y-1,
     convertXValue(X, NewX),
-    ConvertedCoords = [NewX, NewY].
+    ConvertedCoords = [NewX, NewY],
+    nl,
+    print('Converted: '),
+    print(ConvertedCoords),
+    nl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % replace a single cell in a list-of-lists
@@ -126,16 +128,16 @@ replace([L|Ls], 0, Y, Z, [R|Ls]) :-       % once we find the desired row,
     replace_column(L,Y,Z,R).              % - we replace specified column, and we're done.
 
 replace([L|Ls], X, Y, Z, [L|Rs]) :-      % if we haven't found the desired row yet
-  X > 0,                                 % - and the row offset is positive,
-  X1 is X-1,                             % - we decrement the row offset
-  replace(Ls, X1, Y, Z, Rs).             % - and recurse down
+    X > 0,                                 % - and the row offset is positive,
+    X1 is X-1,                             % - we decrement the row offset
+    replace(Ls, X1, Y, Z, Rs).             % - and recurse down
 
 
 replace_column([_|Cs], 0, Z, [Z|Cs]) .       % once we find the specified offset, just make the substitution and finish up.
 replace_column([C|Cs], Y, Z, [C|Rs]) :-      % otherwise,
-  Y > 0,                                     % - assuming that the column offset is positive,
-  Y1 is Y-1,                                 % - we decrement it
-  replace_column(Cs, Y1, Z, Rs).             % - and recurse down.
+    Y > 0,                                     % - assuming that the column offset is positive,
+    Y1 is Y-1,                                 % - we decrement it
+    replace_column(Cs, Y1, Z, Rs).             % - and recurse down.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 updateBoard(OldGame, OldBoard, NewBoard, NewCoords) :-
@@ -167,5 +169,4 @@ updateGame(OldGame, UpdatedGame, NewBoard, NewCoords) :-
         L = 8 -> getBot(OldGame, B) , append(AuxGame, [B], UpdatedGame);
         L = _ -> ;
     ).
-    
 

@@ -15,7 +15,7 @@ printRestOfTheBoard([], []).
 printRestOfTheBoard([Row | OtherRows], [Identifier | OtherIdentifiers]) :- printBoardRow(Row, Identifier), nl, nl, printRestOfTheBoard(OtherRows, OtherIdentifiers).
 
 
-printBoard(Board) :- printColumnGuide, nl, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
+printBoard(Board) :- nl, printColumnGuide, nl, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
 
 printMainMenu :-
     clearConsole,
@@ -122,8 +122,7 @@ getCoord(Coords) :-
     getChar(Col),
     write('Insert line: '),
     getInt(Line),
-    Coords = [Col, Line],
-    print(Coords).
+    Coords = [Col, Line].
 
 
 askPlayerToInsertPlay(Player, Coords) :- 
@@ -133,6 +132,23 @@ askPlayerToInsertPlay(Player, Coords) :-
     Player = _ -> ;
     ),
     getCoord(Coords).
+
+printBoardWithChars(Game) :- 
+    getGameBoard(Game, Board),
+    getMinaCoordinates(Game, Mcoords),
+    getYukiCoordinates(Game, Ycoords),
+    getX(Mcoords, MX),
+    getY(Mcoords, MY),
+    (
+        areCoordsValid(Mcoords) -> replace(Board, MY, MX, 'M', AfterMina); AfterMina = Board
+    ),
+    getX(Ycoords, YX),
+    getY(Ycoords, YY),
+    (
+        areCoordsValid(Ycoords) -> replace(AfterMina, YY, YX, 'Y', AfterYuki); AfterYuki = AfterMina
+    ),
+    printBoard(AfterYuki).
+
 
 helpMenu :- write('help!!!!!'), nl.
 clearConsole :- write('\e[2J').
