@@ -133,12 +133,14 @@ getCoord(Coords) :-
     Coords = [Col, Line].
 
 
-askPlayerToInsertPlay(Player, Coords) :-
+askPlayerToInsertPlay(Game, Coords) :-
+    getPlayerToPlay(Game, Player),
+    getCharTurn(Game, Char),
     (
-    Player = 'player1' -> write('Player1 turn. ');
-    Player = 'player2' -> write('Player2 turn. ');
+    Player = 'player1' -> write('Player1 as ');
+    Player = 'player2' -> write('Player2 as ');
     Player = _ -> ;
-    ),
+    ), write(Char), write(' turn.'),
     getCoord(Coords).
 
 printBoardWithChars(Game) :-

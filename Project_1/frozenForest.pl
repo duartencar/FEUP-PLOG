@@ -14,7 +14,7 @@ playGame(G) :-
     checkIfnextCharCanMove(G),
     getGameMode(G, Gmode),
     (
-        Gmode = 'botVplayer' -> (getHumanPlay(G, NG), letBotPlay(NG, FG), playGame(FG)) ; 
+        Gmode = 'botVplayer' -> (getHumanPlay(G, NG), letBotPlay(NG, FG), playGame(FG)) ;
         getHumanPlay(G, NG), playGame(NG)
     ).
 
@@ -27,9 +27,9 @@ getHumanPlay(OldGameState, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    %clearConsole,
+    clearConsole,
     printBoardWithChars(OldGameState),
-    askPlayerToInsertPlay(Player, Coords), % notifica um dos jogadores
+    askPlayerToInsertPlay(OldGameState, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
     convertToMatrixCoords(Coords, NewCoords),
     checkPlayerPlans(OldGameState, NewCoords),
@@ -42,6 +42,10 @@ checkIfnextCharCanMove(Game) :-
 
 letBotPlay(OldGameState, NewGameState) :-
     print('Bot').
-    
-    
-    
+
+
+%TO DO LIST:
+  % quando a primeira ronda acaba começa a segunda.
+  % quando a segunda ronda acaba, anunciar o vencedor
+  % avaliar tabuleiro
+  % fazer bots
