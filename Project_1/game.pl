@@ -1,24 +1,3 @@
-initialBoard(
-    [['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
-    ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']]
-    ).
-
-gmode('playerVplayer').
-gmode('botVplayer').
-
-gameChar('yuki').
-gameChar('mina').
-
-playerChar('mina', 'player2').
-playerChar('yuki', 'player1').
-playerChar('mina', 'bot').
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The two functions below return the game object as a List.
@@ -38,6 +17,8 @@ createPlayerVsBotGame(G, Bot) :- initialBoard(Board), G = [Board, 0, 0, [-1,-1],
 
 getGameBoard(G, Board) :- nth0(0, G, Board).
 
+isItATree(G, X, Y) :- getGameBoard(G, Board), getElementAtCoord(Board, [X, Y], Elem), Elem == 'X'.
+
 getPlayerScore(G, Score) :- nth0(1, G, Score).
 
 getPlayer2Score(G, Score) :- nth0(2, G, Score).
@@ -46,7 +27,11 @@ getBotScore(G, Score) :- nth0(2, G, Score).
 
 getYukiCoordinates(G, Coords) :- nth0(3, G, Coords).
 
+isYukiFirstMove(G) :- getYukiCoordinates(G, Coords), not(areCoordsValid(Coords)).
+
 getMinaCoordinates(G, Coords) :- nth0(4, G, Coords).
+
+isMinaFirstMove(G) :- getMinaCoordinates(G, Coords), not(areCoordsValid(Coords)).
 
 getCharTurn(G, Char) :- nth0(5, G, Char).
 
@@ -60,24 +45,20 @@ getY(Coords, Y) :- nth0(1, Coords, Y).
 
 getPlayerToPlay(G, P) :- getCharTurn(G, Char), playerChar(Char, P).
 
-areCoordsValid(Coords) :- 
+areCoordsValid(Coords) :-
     getX(Coords, X),
     getY(Coords, Y),
-    X >= 0, X =< 9,
-    Y >= 0, Y =< 9.
+    casa(X,Y),
+    print('Valid coords -> '), print(Coords).
 
+getElementAtCoord(Board, Coords, Elem) :-
+    getX(Coords, X),
+    getY(Coords, Y),
+    nth0(Y, Board, Line),
+    nth0(X, Line, Elem).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-gcd(0, DeltaX, DeltaX):- DeltaX > 0, !.
-gcd(DeltaX, DeltaY, GDC) :- DeltaX >= DeltaY, X1 is DeltaX - DeltaY, gcd(X1, DeltaY, GDC).
-gcd(DeltaX, DeltaY, GDC) :- DeltaX < DeltaY, X1 is DeltaY - DeltaX, gcd(X1, DeltaX, GDC).
-
-checkLineOfSight(DeltaX, DeltaY) :- %So ha linha de visao se o maximo divisor comum entre os 2 for 1.
-    (DeltaX =\= 0 ; DeltaY =\= 0),
-    gcd(DeltaX, DeltaY, GDC),
-    GDC =:= 1.
 
 convertXValue(X, NewX) :-
     (
