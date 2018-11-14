@@ -1,12 +1,12 @@
 not(X) :- X, !, fail.
 not(X).
 
-checkIfThereIsATree(Board, Coords) :- 
+checkIfThereIsATree(Board, Coords) :-
     getElementAtCoord(Board, Coords, Elem),
     nl,
     Elem == 'X'.
 
-thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :- 
+thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     XtoTest =:= GoalX,
     YtoTest =:= GoalY.
 
@@ -15,6 +15,10 @@ thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) 
     NewX is XtoTest + LeapX,
     NewY is YtoTest + LeapY,
     thereareNoTreesInTheMiddle(Board, LeapX, LeapY, NewX, NewY, GoalX, GoalY).
+
+%yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+ %   XtoTest =:= GoalX,
+  %  YtoTest =:= GoalY.
 
 checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     getX(NewCoords, NX),
@@ -40,8 +44,7 @@ checkMinaPlanToMove(PreviousCoords, NewCoords) :-
     getY(PreviousCoords, PY),
     DiffX is abs(NX - PX),
     DiffY is abs(NY - PY),
-    ((DiffX > 0, DiffY =:= 0) ; (DiffY > 0, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX > 0)),
-    print('valid movement')).
+    ((DiffX > 0, DiffY =:= 0) ; (DiffY > 0, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX > 0))).
 
 checkYukiPlanToMove(PreviousCoords, NewCoords) :-
     (not(areCoordsValid(PreviousCoords)), print('first move')) ; %in case of first movement
@@ -52,19 +55,59 @@ checkYukiPlanToMove(PreviousCoords, NewCoords) :-
     getY(PreviousCoords, PY),
     DiffX is abs(NX - PX),
     DiffY is abs(NY - PY),
-    ((DiffX =:= 1, DiffY =:= 0) ; (DiffY =:= 1, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX =:= 1)),
-    print('valid movement')).
+    ((DiffX =:= 1, DiffY =:= 0) ; (DiffY =:= 1, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX =:= 1))).
+
+yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+    multiples(XtoTest, YtoTest, LeapX, LeapY, RX, RY),
+    getElementAtCoord(Board, [RX, RY], Elem),
+    ((not(Elem == 'X'); not(Elem == 'O')), !);
+    ((GoalX =:= RX, GoalY =:= RY), print('Reache Goal')), !.
+
+multiples(X, Y, DX, DY,X1, Y1):-
+    factor(N),
+    NDX is N*DX,
+    NDY is N*DY,
+    RX is X+NDX,
+    RY is Y+NDY,
+    casa(RX, RY),
+    X1 is RX,
+    Y1 is RY.
+
+checkIfMinaDoestGoAboveYuki(Game, NewMinaCoords) :-
+    getMinaCoordinates(Game, PreviousMinaCoords),
+    not(areCoordsValid(PreviousMinaCoords)) ; (
+    getMinaCoordinates(Game, PMC),
+    getX(PMC, PX),
+    getY(PMC, PY),
+    getX(NewMinaCoords, NX),
+    getY(NewMinaCoords, NY),
+    DiffX is NX - PX,
+    DiffY is NY - PY,
+    CoPrime is gcd(DiffX, DiffY),
+    StepX is round(DiffX / CoPrime),
+    StepY is round(DiffY / CoPrime),
+    getGameBoard(Game, Board),
+    getYukiCoordinates(Game, YC),
+    getX(YC, YX),
+    getY(YC, YY),
+    replace(Board, YY, YX, 'Y', NB),
+    yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY)).
 
 checkIfMinaCanMoveTo(Game, MinaCoords) :-
+    nl,print('Evaluating -> '), print(MinaCoords), nl,
     getGameBoard(Game, Board),
     getYukiCoordinates(Game, YukiCoords),
     getMinaCoordinates(Game, PreviousMinaCoords),
     checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), % can move diagonally or ortoganlly has many cases as she wants
-    checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords). % yuki can t have a line of sight
+    nl,print('Legal move'), nl,
+    checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), % yuki can t have a line of sight
+    nl,print('No line of sight'), nl,
+    checkIfMinaDoestGoAboveYuki(Game, MinaCoords),
+    nl,print('DOesn t go above yuki'), nl.
 
 checkIfYukiCanMoveTo(Game, YukiCoords) :-
     isYukiFirstMove(Game) ;
-    ( 
+    (
     getGameBoard(Game, Board),
     getYukiCoordinates(Game, PreviousYukiCoords),
     getMinaCoordinates(Game, MinaCoords),
@@ -77,7 +120,7 @@ checkPlayerPlans(Game, Coords) :-
     (
         CharToMove = 'mina' -> checkIfMinaCanMoveTo(Game, Coords); checkIfYukiCanMoveTo(Game, Coords)
     ).
-    
+
 minaPossibleMoves(Game, X1, Y1) :-
     getMinaCoordinates(Game, Coords),
     getX(Coords, X),
@@ -112,7 +155,7 @@ checkIfYukiHasMoves(Game) :-
     checkIfYukiCanMoveTo(Game, Coords), !
     ).
 
-checkIfMinaHasMoves(Game) :- 
+checkIfMinaHasMoves(Game) :-
     print('Checking if mina can move'),nl,
     isMinaFirstMove(Game) ; (
     getGameBoard(Game, Board),
@@ -121,5 +164,5 @@ checkIfMinaHasMoves(Game) :-
     getY(MC, Y),
     minaPossibleMoves(Game,X1,Y1),
     Coords = [X1, Y1],
-    nl,print('Going to test ->'), print(Coords),nl,
-    checkIfThereIsNotALineOfSight(Board, Coords, YC),!).
+    %nl,print('Going to test ->'), print(Coords),nl,
+    checkIfMinaCanMoveTo(Game, Coords),!).

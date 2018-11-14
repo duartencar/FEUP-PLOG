@@ -1,7 +1,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The two functions below return the game object as a List.
-% Elements: 
+% Elements:
 %   0: Board matrix.
 %   1: player score
 %   2: player or bot score
@@ -18,6 +18,8 @@ createPlayerVsBotGame(G, Bot) :- initialBoard(Board), G = [Board, 0, 0, [-1,-1],
 getGameBoard(G, Board) :- nth0(0, G, Board).
 
 isItATree(G, X, Y) :- getGameBoard(G, Board), getElementAtCoord(Board, [X, Y], Elem), Elem == 'X'.
+
+isItYuki(G, X, Y) :- getGameBoard(G, Board), getElementAtCoord(Board, [X, Y], Elem), Elem == 'Y'.
 
 getPlayerScore(G, Score) :- nth0(1, G, Score).
 
@@ -48,8 +50,7 @@ getPlayerToPlay(G, P) :- getCharTurn(G, Char), playerChar(Char, P).
 areCoordsValid(Coords) :-
     getX(Coords, X),
     getY(Coords, Y),
-    casa(X,Y),
-    print('Valid coords -> '), print(Coords).
+    casa(X,Y).
 
 getElementAtCoord(Board, Coords, Elem) :-
     getX(Coords, X),
@@ -73,7 +74,7 @@ convertXValue(X, NewX) :-
         X == 'i' -> NewX = 8;
         X ==  _ -> ;
     ).
-    
+
 
 checkIfCoordsAreValid(Coords) :-
     length(Coords, L),
@@ -86,7 +87,7 @@ checkIfCoordsAreValid(Coords) :-
     member(Y, LG).
 
 
-convertToMatrixCoords(Coords, ConvertedCoords) :- 
+convertToMatrixCoords(Coords, ConvertedCoords) :-
     getY(Coords, Y),
     getX(Coords, X),
     NewY is Y-1,
@@ -150,4 +151,3 @@ updateGame(OldGame, UpdatedGame, NewBoard, NewCoords) :-
         L = 8 -> getBot(OldGame, B) , append(AuxGame, [B], UpdatedGame);
         L = _ -> ;
     ).
-

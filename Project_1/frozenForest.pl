@@ -20,7 +20,8 @@ playGame(G) :-
 
 playGame(G) :-
     nl,
-    print('END').
+    print('END'),
+    pressEnterToContinue.
 
 getHumanPlay(OldGameState, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
