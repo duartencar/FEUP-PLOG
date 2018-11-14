@@ -3,19 +3,27 @@ rowGuides(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']).
 
 
 
-printColumnGuide :- write('   a  b  c  d  e  f  g  h  i').
+printColumnGuide :- write('|   | a | b | c | d | e | f | g | h | i |').
 
 printRowValues([]).
-printRowValues([Value | OtherValues]) :- write(Value), write('  '), printRowValues(OtherValues).
+printRowValues([Value | OtherValues]) :-
+    write(' '),
+    (Value == 'X' -> print('*') ; print(Value)),
+    write(' |'),
+    printRowValues(OtherValues).
 
-printBoardRow(Row, Identifier):- format('~w  ', Identifier), printRowValues(Row).
+printBoardRow(Row, Identifier):- format('| ~w |', Identifier), printRowValues(Row).
+
+printBoardEndOrBegin :- write('-----------------------------------------').
+
+printBoardDivisory :- write('|---|---|---|---|---|---|---|---|---|---|').
 
 
 printRestOfTheBoard([], []).
-printRestOfTheBoard([Row | OtherRows], [Identifier | OtherIdentifiers]) :- printBoardRow(Row, Identifier), nl, nl, printRestOfTheBoard(OtherRows, OtherIdentifiers).
+printRestOfTheBoard([Row | OtherRows], [Identifier | OtherIdentifiers]) :- printBoardRow(Row, Identifier), nl, printBoardDivisory, nl, printRestOfTheBoard(OtherRows, OtherIdentifiers).
 
 
-printBoard(Board) :- nl, printColumnGuide, nl, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
+printBoard(Board) :- nl, printBoardEndOrBegin, nl, printColumnGuide, nl, printBoardDivisory, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
 
 printMainMenu :-
     clearConsole,
@@ -33,7 +41,7 @@ printMainMenu :-
 getCoordinates(Coord) :- read(Coord), print(Coord).
 
 getChar(Option):-
-	get_char(Option), 
+	get_char(Option),
     discardInputChar.
 
 getInt(Input):-
@@ -51,7 +59,7 @@ pressEnterToContinue:-
 waitForEnter:-
 	get_char(_).
 
-mainMenu :- 
+mainMenu :-
     printMainMenu,
     getChar(Option),
     (
@@ -64,7 +72,7 @@ mainMenu :-
     mainMenu
 ).
 
-printGameModeMenu :- 
+printGameModeMenu :-
     clearConsole,
     write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
     write('|    Frozen Forest     |'), nl,
@@ -90,7 +98,7 @@ gameModeMenu :-
     mainMenu
 ).
 
-printBotOptionsMenu :- 
+printBotOptionsMenu :-
     clearConsole,
     write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
     write('|    Frozen Forest     |'), nl,
@@ -103,7 +111,7 @@ printBotOptionsMenu :-
     write(' VVVVVVVVVVVVVVVVVVVVVV '), nl,
     write('Choose an option: '), nl.
 
-botOptionsMenu :- 
+botOptionsMenu :-
     printBotOptionsMenu,
     getChar(Option),
     (
@@ -116,7 +124,7 @@ botOptionsMenu :-
     mainMenu
 ).
 
-getCoord(Coords) :- 
+getCoord(Coords) :-
     nl,
     write('Insert column: '),
     getChar(Col),
@@ -125,7 +133,7 @@ getCoord(Coords) :-
     Coords = [Col, Line].
 
 
-askPlayerToInsertPlay(Player, Coords) :- 
+askPlayerToInsertPlay(Player, Coords) :-
     (
     Player = 'player1' -> write('Player1 turn. ');
     Player = 'player2' -> write('Player2 turn. ');
@@ -133,7 +141,7 @@ askPlayerToInsertPlay(Player, Coords) :-
     ),
     getCoord(Coords).
 
-printBoardWithChars(Game) :- 
+printBoardWithChars(Game) :-
     getGameBoard(Game, Board),
     getMinaCoordinates(Game, Mcoords),
     getYukiCoordinates(Game, Ycoords),
@@ -152,4 +160,3 @@ printBoardWithChars(Game) :-
 
 helpMenu :- write('help!!!!!'), nl.
 clearConsole :- write('\e[2J').
-    

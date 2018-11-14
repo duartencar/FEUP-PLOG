@@ -16,10 +16,6 @@ thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) 
     NewY is YtoTest + LeapY,
     thereareNoTreesInTheMiddle(Board, LeapX, LeapY, NewX, NewY, GoalX, GoalY).
 
-%yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
- %   XtoTest =:= GoalX,
-  %  YtoTest =:= GoalY.
-
 checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     getX(NewCoords, NX),
     getY(NewCoords, NY),
