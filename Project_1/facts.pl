@@ -9,13 +9,17 @@ initialBoard(
         ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'],
         ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']]
         ).
-    
+
 gmode('playerVplayer').
 gmode('botVplayer').
-    
+
 gameChar('yuki').
 gameChar('mina').
-    
+
+player('player1').
+player('player2').
+player('bot').
+
 playerChar('mina', 'player2').
 playerChar('yuki', 'player1').
 playerChar('mina', 'bot').
@@ -130,4 +134,4 @@ casa(9,5).
 casa(9,6).
 casa(9,7).
 casa(9,8).
-casa(9,9).   
+casa(9,9).

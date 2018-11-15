@@ -6,7 +6,7 @@ checkIfThereIsATree(Board, Coords) :-
     nl,
     Elem == 'X'.
 
-thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+thereareNoTreesInTheMiddle(_Board, _LeapX, _LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     XtoTest =:= GoalX,
     YtoTest =:= GoalY.
 
@@ -56,8 +56,9 @@ checkYukiPlanToMove(PreviousCoords, NewCoords) :-
 yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     multiples(XtoTest, YtoTest, LeapX, LeapY, RX, RY),
     getElementAtCoord(Board, [RX, RY], Elem),
-    ((not(Elem == 'X'); not(Elem == 'O')), !);
-    ((GoalX =:= RX, GoalY =:= RY), print('Reache Goal')), !.
+    nl, print([XtoTest, YtoTest]), print(' -> '), print(Elem),
+    ((not(Elem == 'X'); not(Elem == 'O')), !); true.
+    %(print('hello -> '), print(RX), (GoalX =:= RX, GoalY =:= RY), print('Reache Goal')), !.
 
 multiples(X, Y, DX, DY,X1, Y1):-
     factor(N),
@@ -87,7 +88,7 @@ checkIfMinaDoestGoAboveYuki(Game, NewMinaCoords) :-
     getX(YC, YX),
     getY(YC, YY),
     replace(Board, YY, YX, 'Y', NB),
-    yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY)).
+    not(yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY))).
 
 checkIfMinaCanMoveTo(Game, MinaCoords) :-
     nl,print('Evaluating -> '), print(MinaCoords), nl,
@@ -155,9 +156,6 @@ checkIfMinaHasMoves(Game) :-
     print('Checking if mina can move'),nl,
     isMinaFirstMove(Game) ; (
     getGameBoard(Game, Board),
-    getYukiCoordinates(Game, YC),
-    getX(MC, X),
-    getY(MC, Y),
     minaPossibleMoves(Game,X1,Y1),
     Coords = [X1, Y1],
     %nl,print('Going to test ->'), print(Coords),nl,

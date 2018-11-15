@@ -15,6 +15,18 @@ createPlayerVsPlayerGame(G) :- initialBoard(Board), G = [Board, 0, 0, [-1,-1], [
 
 createPlayerVsBotGame(G, Bot) :- initialBoard(Board), G = [Board, 0, 0, [-1,-1], [-1, -1], 'yuki', 'botVplayer', Bot].
 
+getGameForSecondRound(OldGame, Winner, NewGame) :-
+    initialBoard(B),
+    getGameMode(OldGame, Gmode),
+    (
+    Gmode == 'playerVplayer' -> (Winner == 'player1' -> NewGame = [B, 1, 0, [-1,-1], [-1, -1], 'yuki', 'playerVplayer'];
+                                                        NewGame = [B, 0, 1, [-1,-1], [-1, -1], 'yuki', 'playerVplayer']) ;
+                                (getBot(OldGame, Bot), Winner == 'player1' -> NewGame = [B, 1, 0, [-1,-1], [-1, -1], 'yuki', 'playerVplayer', Bot];
+                                                                              NewGame = [B, 0, 1, [-1,-1], [-1, -1], 'yuki', 'playerVplayer', Bot])
+
+    ).
+
+
 getGameBoard(G, Board) :- nth0(0, G, Board).
 
 isItATree(G, X, Y) :- getGameBoard(G, Board), getElementAtCoord(Board, [X, Y], Elem), Elem == 'X'.
@@ -45,7 +57,19 @@ getX(Coords, X) :- nth0(0, Coords, X).
 
 getY(Coords, Y) :- nth0(1, Coords, Y).
 
-getPlayerToPlay(G, P) :- getCharTurn(G, Char), playerChar(Char, P).
+getPlayerToPlay(G, P) :-
+    getCharTurn(G, Char),
+    getGameMode(G, Gmode),
+    print('Mode -> '), print(Gmode), nl,
+    getPlayerScore(G, S1),
+    getPlayer2Score(G, S2),
+    Sum is S1+S2,
+    print('Sum -> '), print(Sum), nl,
+    (
+      Sum =:= 0 -> (Char == 'yuki' -> P = 'player1' ; (Gmode == 'playerVplayer' -> P = 'player2' ; P = 'bot')) ;
+      (Char == 'mina' -> P = 'player1' ; (Gmode == 'playerVplayer' -> P = 'player2' ; P = 'bot'))
+    ), print('NEXT -> '), print(P), nl.
+
 
 areCoordsValid(Coords) :-
     getX(Coords, X),

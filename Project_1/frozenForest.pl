@@ -19,15 +19,21 @@ playGame(G) :-
     ).
 
 playGame(G) :-
-    nl,
-    print('END'),
-    pressEnterToContinue.
+    isItEndOfFirstRound(G),
+    getRoundWinner(G, Winner),
+    pressEnterToContinue,
+    getGameForSecondRound(G, Winner, NG),
+    playGame(NG), !.
+
+playGame(G) :-
+    nl, print('End of the game.'), nl,
+    pressEnterToContinue, !.
 
 getHumanPlay(OldGameState, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    clearConsole,
+    %clearConsole,
     printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(OldGameState, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
@@ -43,9 +49,25 @@ checkIfnextCharCanMove(Game) :-
 letBotPlay(OldGameState, NewGameState) :-
     print('Bot').
 
+isItEndOfFirstRound(Game) :-
+    getPlayerScore(Game, Score1),
+    getPlayer2Score(Game, Score2),
+    Sum is Score1 + Score2,
+    nl, print('Score sum = '), print(Sum), nl,
+    Sum =:= 0.
+
+getRoundWinner(Game, Winner) :-
+    getPlayerToPlay(Game, Player),
+    getGameMode(Game, Gmode),
+    (
+    Gmode == 'botVplayer' -> (Player == 'player1' -> Winner = 'bot'; Winner = 'player1') ;
+                             (Player == 'player1' -> Winner = 'player2' ; Winner = 'player1')),
+    nl, print(Winner), print(' wins the round.').
+
+
 
 %TO DO LIST:
-  % quando a primeira ronda acaba começa a segunda.
-  % quando a segunda ronda acaba, anunciar o vencedor
+  % quando a primeira ronda acaba começa a segunda. DONE
+  % quando a segunda ronda acaba, anunciar o vencedor. A METADE
   % avaliar tabuleiro
   % fazer bots
