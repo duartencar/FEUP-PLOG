@@ -56,8 +56,8 @@ checkYukiPlanToMove(PreviousCoords, NewCoords) :-
 yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     multiples(XtoTest, YtoTest, LeapX, LeapY, RX, RY),
     getElementAtCoord(Board, [RX, RY], Elem),
-    nl, print([XtoTest, YtoTest]), print(' -> '), print(Elem),
-    ((not(Elem == 'X'); not(Elem == 'O')), !); true.
+    nl, print([XtoTest, YtoTest]), print(' -> '), print(Elem), !,
+    not(Elem == 'Y').
     %(print('hello -> '), print(RX), (GoalX =:= RX, GoalY =:= RY), print('Reache Goal')), !.
 
 multiples(X, Y, DX, DY,X1, Y1):-
@@ -88,13 +88,13 @@ checkIfMinaDoestGoAboveYuki(Game, NewMinaCoords) :-
     getX(YC, YX),
     getY(YC, YY),
     replace(Board, YY, YX, 'Y', NB),
-    not(yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY))).
+    yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY)).
 
 checkIfMinaCanMoveTo(Game, MinaCoords) :-
-    nl,print('Evaluating -> '), print(MinaCoords), nl,
     getGameBoard(Game, Board),
     getYukiCoordinates(Game, YukiCoords),
     getMinaCoordinates(Game, PreviousMinaCoords),
+    nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords), nl,
     checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), % can move diagonally or ortoganlly has many cases as she wants
     nl,print('Legal move'), nl,
     checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), % yuki can t have a line of sight
@@ -159,4 +159,4 @@ checkIfMinaHasMoves(Game) :-
     minaPossibleMoves(Game,X1,Y1),
     Coords = [X1, Y1],
     %nl,print('Going to test ->'), print(Coords),nl,
-    checkIfMinaCanMoveTo(Game, Coords),!).
+    checkIfMinaCanMoveTo(Game, Coords)).
