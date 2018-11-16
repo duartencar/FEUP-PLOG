@@ -41,7 +41,7 @@ getBotScore(G, Score) :- nth0(2, G, Score).
 
 getYukiCoordinates(G, Coords) :- nth0(3, G, Coords).
 
-isYukiFirstMove(G) :- getYukiCoordinates(G, Coords), not(areCoordsValid(Coords)).
+%isYukiFirstMove(G) :- getYukiCoordinates(G, Coords), not(areCoordsValid(Coords)).
 
 getMinaCoordinates(G, Coords) :- nth0(4, G, Coords).
 
@@ -81,6 +81,20 @@ getElementAtCoord(Board, Coords, Elem) :-
     getY(Coords, Y),
     nth0(Y, Board, Line),
     nth0(X, Line, Elem).
+
+areCharsNeighboors(Game) :-
+    getYukiCoordinates(Game, YC),
+    getMinaCoordinates(Game, MC),
+    getX(YC, YX),
+    getY(YC, YY),
+    getX(MC, MX),
+    getY(MC, MY),
+    DiffX is abs(YX - MX),
+    DiffY is abs(YY - MY),
+    ((DiffX =:= 0 , DiffY =:= 1);
+     (DiffX =:= 1 , DiffY =:= 0);
+     (DiffX =:= 1 , DiffY =:= DiffX)
+    ), print('Char s are neighboors.').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,6 +168,16 @@ remove_duplicates([H | T], List) :-
 remove_duplicates([H | T], [H|T1]) :-
     \+member(H, T),
     remove_duplicates( T, T1).
+
+rowN([H|_],1,H):-!.
+rowN([_|T],I,X) :-
+    I1 is I-1,
+    rowN(T,I1,X).
+
+columnN([],_,[]).
+columnN([H|T], I, [R|X]):-
+    rowN(H, I, R),
+    columnN(T,I,X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 updateBoard(OldGame, OldBoard, NewBoard, NewCoords) :-

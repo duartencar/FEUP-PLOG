@@ -16,14 +16,22 @@ thereareNoTreesInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) 
     NewY is YtoTest + LeapY,
     thereareNoTreesInTheMiddle(Board, LeapX, LeapY, NewX, NewY, GoalX, GoalY).
 
+notNeighboor(DiffX, DiffY) :-
+    AbsDX is abs(DiffX),
+    AbsDY is abs(DiffY),
+    (AbsDX > 1 ; AbsDY > 1).
+    %nl, print([AbsDX, AbsDY]),
+    %nl, print('       NOT NEIGHBOORS       ').
+
 checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     getX(NewCoords, NX),
     getY(NewCoords, NY),
     getX(EnemyCoords, EX),
     getY(EnemyCoords, EY),
     DiffX is EX - NX,
-    DiffY is EY - NY,
-    not(isNeighboor(DiffX, DiffY)),
+    DiffY is EY - NY, !,
+    notNeighboor(DiffX, DiffY), !,
+    %nl, print('DIFFS -> '), print([DiffX, DiffY]),
     CoPrime is gcd(DiffX, DiffY),
     CoPrime =\= 1,
     StepX is round(DiffX / CoPrime),
@@ -52,12 +60,17 @@ checkYukiPlanToMove(PreviousCoords, NewCoords) :-
     DiffY is abs(NY - PY),
     ((DiffX =:= 1, DiffY =:= 0) ; (DiffY =:= 1, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX =:= 1))).
 
-yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+getElemntsInALine(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY, Elem) :-
     multiples(XtoTest, YtoTest, LeapX, LeapY, RX, RY),
-    getElementAtCoord(Board, [RX, RY], Elem),
-    nl, print([XtoTest, YtoTest]), print(' -> '), print(Elem), !,
-    not(Elem == 'Y').
-    %(print('hello -> '), print(RX), (GoalX =:= RX, GoalY =:= RY), print('Reache Goal')), !.
+    getElementAtCoord(Board, [RX, RY], Elem).
+
+isYukiInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+    findall(Elem, getElemntsInALine(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY, Elem), R), !,
+    member('Y', R),
+    nl, print('R -> '), print(R).
+
+yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
+    not(isYukiInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY)).
 
 multiples(X, Y, DX, DY,X1, Y1):-
     factor(N),
@@ -69,69 +82,53 @@ multiples(X, Y, DX, DY,X1, Y1):-
     X1 is RX,
     Y1 is RY.
 
-isNeighboor(DiffX, DiffY) :-
-    AbsDX is abs(DiffX),
-    AbsDY is abs(DiffY),
-    AbsDX < 2 , AbsDY < 2.
-
-checkIfMinaDoestGoAboveYuki(Game, NewMinaCoords) :-
-    getMinaCoordinates(Game, PreviousMinaCoords),
-    not(areCoordsValid(PreviousMinaCoords)) ; (
-    getMinaCoordinates(Game, PMC),
-    getX(PMC, PX),
-    getY(PMC, PY),
+checkIfMinaDoestGoAboveYuki(Board, NewMinaCoords) :-
+    (not(findMina(Board, PX, PY)), print('mina not present')) ; ( %se nao encontra a mina e pq e o 1 move
+    findMina(Board, PX, PY),
     getX(NewMinaCoords, NX),
     getY(NewMinaCoords, NY),
     DiffX is NX - PX,
     DiffY is NY - PY,
     CoPrime is gcd(DiffX, DiffY),
     StepX is round(DiffX / CoPrime),
-    StepY is round(DiffY / CoPrime),
-    getGameBoard(Game, Board),
-    getYukiCoordinates(Game, YC),
-    getX(YC, YX),
-    getY(YC, YY),
-    replace(Board, YY, YX, 'Y', NB),
-    yukiIsNotInTheMiddle(NB, StepX, StepY, PX, PY, NX, NY)).
+    StepY is round(DiffY / CoPrime),print('before'),
+    yukiIsNotInTheMiddle(Board, StepX, StepY, PX, PY, NX, NY), print('yuki is not in the middle')).
 
-checkIfMinaCanMoveTo(Game, MinaCoords) :-
-    getGameBoard(Game, Board),
-    getYukiCoordinates(Game, YukiCoords),
-    getMinaCoordinates(Game, PreviousMinaCoords),
-    getX(MinaCoords, X),
-    getY(MinaCoords, Y),
-    casa(X, Y),
-    nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords), nl,
+areCoordsEqual(Coords1, Coords2) :-
+    getX(Coords1, X1),
+    getY(Coords1, Y1),
+    getX(Coords2, X2),
+    getY(Coords2, Y2),
+    X1 =:= X2, Y1 =:= Y2.
+
+checkIfMinaCanMoveTo(Board, MinaCoords) :-
+    findYuki(Board, YX, YY),
+    YukiCoords = [YX, YY],
+    findMina(Board, X, Y),
+    PreviousMinaCoords = [X, Y],
+    !,
+    not(areCoordsEqual(MinaCoords, YukiCoords)),
+    %nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords),
     checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), % can move diagonally or ortoganlly has many cases as she wants
-    nl,print('Legal move'), nl,
+    %nl,print('Legal move'), nl,
     checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), % yuki can t have a line of sight
-    nl,print('No line of sight'), nl,
-    checkIfMinaDoestGoAboveYuki(Game, MinaCoords),
-    nl,print('DOesn t go above yuki'), nl.
+    %nl,print('No line of sight'), nl,
+    checkIfMinaDoestGoAboveYuki(Board, MinaCoords).
+    %nl,print('DOesn t go above yuki'), nl.
 
-checkIfYukiCanMoveTo(Game, YukiCoords) :-
-    isYukiFirstMove(Game) ;
+checkIfYukiCanMoveTo(Board, YukiCoords) :-
+    isYukiFirstMove(Board) ;
     (
-    getX(YukiCoords, X),
-    getY(YukiCoords, Y),
-    casa(X,Y),
-    getGameBoard(Game, Board),
-    getYukiCoordinates(Game, PreviousYukiCoords),
-    getMinaCoordinates(Game, MinaCoords),
+    findYuki(Board, X, Y),
+    PreviousYukiCoords = [X, Y],
+    findMina(Board, MX, MY),
+    MinaCoords = [MX, MY],
     checkIfThereIsATree(Board, YukiCoords), % must eat a tree
     checkYukiPlanToMove(PreviousYukiCoords, YukiCoords), % can only move diagonally or ortoganlly one case
     not(checkIfThereIsNotALineOfSight(Board, YukiCoords, MinaCoords))). % must have a line of sight
 
-checkPlayerPlans(Game, Coords) :-
-    getCharTurn(Game, CharToMove),
-    (
-        CharToMove = 'mina' -> checkIfMinaCanMoveTo(Game, Coords); checkIfYukiCanMoveTo(Game, Coords)
-    ).
-
-minaPossibleMoves(Game, X1, Y1) :-
-    getMinaCoordinates(Game, Coords),
-    getX(Coords, X),
-    getY(Coords, Y),
+minaPossibleMoves(X, Y, X1, Y1) :-
+    (not(areCoordsValid([X,Y])), casa(X1, Y1)) ;
     casa(X1, Y1),
     DiffX is abs(X-X1),
     DiffY is abs(Y-Y1),
@@ -153,30 +150,30 @@ yukiPossibleMoves(Game, X1, Y1) :-
      (DiffX =:= 1 , DiffY =:= DiffX)
     ).
 
-checkIfYukiHasMoves(Game) :-
-    print('Checking if yuki can move'),nl,
-    isYukiFirstMove(Game) ; (
-    yukiPossibleMoves(Game, X,Y),
-    Coords = [X, Y],
-    nl ,print('Going to test ->'), print(Coords), nl,
-    checkIfYukiCanMoveTo(Game, Coords), !
-    ).
-
-checkIfMinaHasMoves(Game, List) :-
-    print('Checking if mina can move'),nl,
-    isMinaFirstMove(Game) ; (
-    minaPossibleMoves(Game,X1,Y1),
-    Coords = [X1, Y1],
-    nl,print('Going to test ->'), print(Coords),nl,
-    checkIfMinaCanMoveTo(Game, Coords)).
-
-valid_moves(Game, ListOfMoves) :-
-  (isYukiFirstMove(Game), % is Yuki first move
+valid_moves(Board, Char, ListOfMoves) :-
+  (isYukiFirstMove(Board), % is Yuki first move
   findall([X, Y], casa(X,Y), ListOfMoves))  % returns all positions
   ; % OR
-  (getCharTurn(Game, Char),
   (
-  (Char == 'mina', findall([X, Y], checkIfMinaCanMoveTo(Game, [X,Y]), Moves)) % Returns all mina possible moves
+  (Char == 'mina', findMina(Board, MX, MY), findall([X, Y], (minaPossibleMoves(MX, MY, X,Y), checkIfMinaCanMoveTo(Board, [X,Y])), Moves), print('DONE')) % Returns all mina possible moves
   ;
-  (findall([X, Y], checkIfYukiCanMoveTo(Game, [X,Y]), Moves)) % Returns all yuki possible moves
-  )), remove_duplicates(Moves, ListOfMoves). % assures that there are not duplicated members
+  (findall([X, Y], (casa(X,Y), checkIfYukiCanMoveTo(Board, [X,Y])), Moves)) % Returns all yuki possible moves
+  ), remove_duplicates(Moves, ListOfMoves). % assures that there are not duplicated members
+
+findYuki(Board, X, Y) :-
+    casa(X,Y),
+    getElementAtCoord(Board, [X,Y], Elem),
+    Elem == 'Y'.
+
+findMina(Board, X, Y) :-
+    casa(X,Y),
+    getElementAtCoord(Board, [X,Y], Elem),
+    Elem == 'M'.
+
+findMina(Board, X, Y) :-
+    X is -1,
+    Y is -1.
+
+isYukiFirstMove(Board) :- not(findYuki(Board, X, Y)).
+
+isMinaFirstMove(Board) :- not(findMina(Board, X, Y)).

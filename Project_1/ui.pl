@@ -143,7 +143,7 @@ askPlayerToInsertPlay(Game, Coords) :-
     ), write(Char), write(' turn.'),
     getCoord(Coords).
 
-printBoardWithChars(Game) :-
+getBoardWithChars(Game, AfterYuki) :-
     getGameBoard(Game, Board),
     getMinaCoordinates(Game, Mcoords),
     getYukiCoordinates(Game, Ycoords),
@@ -156,8 +156,11 @@ printBoardWithChars(Game) :-
     getY(Ycoords, YY),
     (
         areCoordsValid(Ycoords) -> replace(AfterMina, YY, YX, 'Y', AfterYuki); AfterYuki = AfterMina
-    ),
-    printBoard(AfterYuki).
+    ).
+
+printBoardWithChars(Game) :-
+    getBoardWithChars(Game, Board),
+    printBoard(Board).
 
 
 helpMenu :- write('help!!!!!'), nl.

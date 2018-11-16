@@ -124,14 +124,3 @@ casa(8,5).
 casa(8,6).
 casa(8,7).
 casa(8,8).
-casa(8,9).
-casa(9,0).
-casa(9,1).
-casa(9,2).
-casa(9,3).
-casa(9,4).
-casa(9,5).
-casa(9,6).
-casa(9,7).
-casa(9,8).
-casa(9,9).
