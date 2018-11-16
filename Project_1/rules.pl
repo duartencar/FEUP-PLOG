@@ -23,7 +23,7 @@ checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     getY(EnemyCoords, EY),
     DiffX is EX - NX,
     DiffY is EY - NY,
-    (abs(DiffX) >= 2 ; abs(DiffY) >= 2),
+    not(isNeighboor(DiffX, DiffY)),
     CoPrime is gcd(DiffX, DiffY),
     CoPrime =\= 1,
     StepX is round(DiffX / CoPrime),
@@ -44,8 +44,7 @@ checkMinaPlanToMove(PreviousCoords, NewCoords) :-
 
 checkYukiPlanToMove(PreviousCoords, NewCoords) :-
     (not(areCoordsValid(PreviousCoords)), print('first move')) ; %in case of first movement
-    (print('not first move'),
-    getX(NewCoords, NX),
+    (getX(NewCoords, NX),
     getY(NewCoords, NY),
     getX(PreviousCoords, PX),
     getY(PreviousCoords, PY),
@@ -69,6 +68,11 @@ multiples(X, Y, DX, DY,X1, Y1):-
     casa(RX, RY),
     X1 is RX,
     Y1 is RY.
+
+isNeighboor(DiffX, DiffY) :-
+    AbsDX is abs(DiffX),
+    AbsDY is abs(DiffY),
+    AbsDX < 2 , AbsDY < 2.
 
 checkIfMinaDoestGoAboveYuki(Game, NewMinaCoords) :-
     getMinaCoordinates(Game, PreviousMinaCoords),
@@ -94,6 +98,9 @@ checkIfMinaCanMoveTo(Game, MinaCoords) :-
     getGameBoard(Game, Board),
     getYukiCoordinates(Game, YukiCoords),
     getMinaCoordinates(Game, PreviousMinaCoords),
+    getX(MinaCoords, X),
+    getY(MinaCoords, Y),
+    casa(X, Y),
     nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords), nl,
     checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), % can move diagonally or ortoganlly has many cases as she wants
     nl,print('Legal move'), nl,
@@ -105,6 +112,9 @@ checkIfMinaCanMoveTo(Game, MinaCoords) :-
 checkIfYukiCanMoveTo(Game, YukiCoords) :-
     isYukiFirstMove(Game) ;
     (
+    getX(YukiCoords, X),
+    getY(YukiCoords, Y),
+    casa(X,Y),
     getGameBoard(Game, Board),
     getYukiCoordinates(Game, PreviousYukiCoords),
     getMinaCoordinates(Game, MinaCoords),
@@ -152,11 +162,21 @@ checkIfYukiHasMoves(Game) :-
     checkIfYukiCanMoveTo(Game, Coords), !
     ).
 
-checkIfMinaHasMoves(Game) :-
+checkIfMinaHasMoves(Game, List) :-
     print('Checking if mina can move'),nl,
     isMinaFirstMove(Game) ; (
-    getGameBoard(Game, Board),
     minaPossibleMoves(Game,X1,Y1),
     Coords = [X1, Y1],
-    %nl,print('Going to test ->'), print(Coords),nl,
+    nl,print('Going to test ->'), print(Coords),nl,
     checkIfMinaCanMoveTo(Game, Coords)).
+
+valid_moves(Game, ListOfMoves) :-
+  (isYukiFirstMove(Game), % is Yuki first move
+  findall([X, Y], casa(X,Y), ListOfMoves))  % returns all positions
+  ; % OR
+  (getCharTurn(Game, Char),
+  (
+  (Char == 'mina', findall([X, Y], checkIfMinaCanMoveTo(Game, [X,Y]), Moves)) % Returns all mina possible moves
+  ;
+  (findall([X, Y], checkIfYukiCanMoveTo(Game, [X,Y]), Moves)) % Returns all yuki possible moves
+  )), remove_duplicates(Moves, ListOfMoves). % assures that there are not duplicated members

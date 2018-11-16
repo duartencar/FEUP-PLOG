@@ -44,7 +44,12 @@ getHumanPlay(OldGameState, NewGameState) :-
 
 checkIfnextCharCanMove(Game) :-
     getCharTurn(Game, Char),
-    Char = 'yuki' -> checkIfYukiHasMoves(Game) ; checkIfMinaHasMoves(Game).
+    valid_moves(Game, Moves), !,
+    nl, print('Next to play: '), print(Char),
+    nl, print('Possible moves -> '), print(Moves),
+    length(Moves, L),
+    nl, print('Number of moves: '), print(L),
+    L > 0, pressEnterToContinue.
 
 letBotPlay(OldGameState, NewGameState) :-
     print('Bot').

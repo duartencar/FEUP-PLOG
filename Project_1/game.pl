@@ -145,6 +145,16 @@ replace_column([C|Cs], Y, Z, [C|Rs]) :-      % otherwise,
     Y1 is Y-1,                                 % - we decrement it
     replace_column(Cs, Y1, Z, Rs).             % - and recurse down.
 
+remove_duplicates([],[]).
+
+remove_duplicates([H | T], List) :-
+    member(H, T),
+    remove_duplicates( T, List).
+
+remove_duplicates([H | T], [H|T1]) :-
+    \+member(H, T),
+    remove_duplicates( T, T1).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 updateBoard(OldGame, OldBoard, NewBoard, NewCoords) :-
     print('udating board'),
