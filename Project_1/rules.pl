@@ -3,7 +3,6 @@ not(X).
 
 checkIfThereIsATree(Board, Coords) :-
     getElementAtCoord(Board, Coords, Elem),
-    nl,
     Elem == 'X'.
 
 thereareNoTreesInTheMiddle(_Board, _LeapX, _LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
@@ -28,17 +27,20 @@ checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     getY(NewCoords, NY),
     getX(EnemyCoords, EX),
     getY(EnemyCoords, EY),
-    DiffX is EX - NX,
-    DiffY is EY - NY, !,
+    DiffX is NX - EX,
+    DiffY is NY - EY, !,
     notNeighboor(DiffX, DiffY), !,
-    %nl, print('DIFFS -> '), print([DiffX, DiffY]),
+    nl, print('DIFFS -> '), print([DiffX, DiffY]),
     CoPrime is gcd(DiffX, DiffY),
     CoPrime =\= 1,
     StepX is round(DiffX / CoPrime),
     StepY is round(DiffY / CoPrime),
+    nl, print('STEPS -> '), print([StepX, StepY]),
     FirstX is round(NX + StepX),
     FirstY is round(NY + StepY),
-    not(thereareNoTreesInTheMiddle(Board, StepX, StepY, FirstX, FirstY, EX, EY)).
+    findall(Elem, getElemntsInALine(Board, StepX, StepY, EX, EY, NX, NY, Elem), R),
+    member('X', R),
+    nl, print('R Trees -> '), print(R).
 
 checkMinaPlanToMove(PreviousCoords, NewCoords) :-
     not(areCoordsValid(PreviousCoords)) ; %in case of first movement
@@ -51,7 +53,7 @@ checkMinaPlanToMove(PreviousCoords, NewCoords) :-
     ((DiffX > 0, DiffY =:= 0) ; (DiffY > 0, DiffX =:= 0) ; (DiffX =:= DiffY , DiffX > 0))).
 
 checkYukiPlanToMove(PreviousCoords, NewCoords) :-
-    (not(areCoordsValid(PreviousCoords)), print('first move')) ; %in case of first movement
+    (not(areCoordsValid(PreviousCoords))) ; %in case of first movement
     (getX(NewCoords, NX),
     getY(NewCoords, NY),
     getX(PreviousCoords, PX),
@@ -83,7 +85,7 @@ multiples(X, Y, DX, DY,X1, Y1):-
     Y1 is RY.
 
 checkIfMinaDoestGoAboveYuki(Board, NewMinaCoords) :-
-    (not(findMina(Board, PX, PY)), print('mina not present')) ; ( %se nao encontra a mina e pq e o 1 move
+    (not(findMina(Board, PX, PY))) ; ( %se nao encontra a mina e pq e o 1 move
     findMina(Board, PX, PY),
     getX(NewMinaCoords, NX),
     getY(NewMinaCoords, NY),
@@ -91,8 +93,8 @@ checkIfMinaDoestGoAboveYuki(Board, NewMinaCoords) :-
     DiffY is NY - PY,
     CoPrime is gcd(DiffX, DiffY),
     StepX is round(DiffX / CoPrime),
-    StepY is round(DiffY / CoPrime),print('before'),
-    yukiIsNotInTheMiddle(Board, StepX, StepY, PX, PY, NX, NY), print('yuki is not in the middle')).
+    StepY is round(DiffY / CoPrime), !,
+    yukiIsNotInTheMiddle(Board, StepX, StepY, PX, PY, NX, NY)).
 
 areCoordsEqual(Coords1, Coords2) :-
     getX(Coords1, X1),
@@ -106,15 +108,14 @@ checkIfMinaCanMoveTo(Board, MinaCoords) :-
     YukiCoords = [YX, YY],
     findMina(Board, X, Y),
     PreviousMinaCoords = [X, Y],
-    !,
-    not(areCoordsEqual(MinaCoords, YukiCoords)),
-    %nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords),
-    checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), % can move diagonally or ortoganlly has many cases as she wants
-    %nl,print('Legal move'), nl,
-    checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), % yuki can t have a line of sight
-    %nl,print('No line of sight'), nl,
-    checkIfMinaDoestGoAboveYuki(Board, MinaCoords).
-    %nl,print('DOesn t go above yuki'), nl.
+    not(areCoordsEqual(MinaCoords, YukiCoords)), !,
+    nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords),
+    checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), !, % can move diagonally or ortoganlly has many cases as she wants
+    nl,print('Legal move'), nl,
+    checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), !, % yuki can t have a line of sight
+    nl,print('No line of sight'), nl,
+    checkIfMinaDoestGoAboveYuki(Board, MinaCoords), !.
+    nl,print('DOesn t go above yuki'), nl.
 
 checkIfYukiCanMoveTo(Board, YukiCoords) :-
     isYukiFirstMove(Board) ;
@@ -173,6 +174,15 @@ findMina(Board, X, Y) :-
 findMina(Board, X, Y) :-
     X is -1,
     Y is -1.
+
+isMinaInTheBoarder(Game) :-
+  getMinaCoordinates(Game, MC),
+  getX(MC, X),
+  getY(MC, Y),
+  (X == 0 ;
+  X == 8 ;
+  Y == 0;
+  Y == 8).
 
 isYukiFirstMove(Board) :- not(findYuki(Board, X, Y)).
 

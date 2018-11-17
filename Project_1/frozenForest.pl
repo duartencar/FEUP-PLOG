@@ -15,14 +15,14 @@ playGame(G) :-
     checkIfnextCharCanMove(G, Moves),
     length(Moves, L),
     L > 0,
-    getGameMode(G, Gmode),
-    (
-        Gmode = 'botVplayer' -> (getHumanPlay(G, Moves, NG), letBotPlay(NG, FG), playGame(FG)) ;
-        getHumanPlay(G, Moves, NG), playGame(NG)
-    ).
+    getPlayerToPlay(G, Player),
+    (((Player == 'player1' ; Player == 'player2'), nl, print('TO play -> '), print(Player), getHumanPlay(G, Moves, NG)) ;
+    (Player == 'bot', nl, print('TO play -> '), print(Player), letBotPlay(G, Moves, NG), printBoardWithChars(NG), pressEnterToContinue)),
+    playGame(NG).
 
 playGame(G) :-
     isItEndOfFirstRound(G),
+    printBoardWithChars(G),
     getRoundWinner(G, Winner),
     pressEnterToContinue,
     getGameForSecondRound(G, Winner, NG),
@@ -49,19 +49,18 @@ validPlay(Moves, Play) :-
     member(Play, Moves).
 
 checkIfnextCharCanMove(Game, Moves) :-
-    (areCharsNeighboors(Game), Moves = [], !) ; (
-    !,
+    %(areCharsNeighboors(Game), isMinaInTheBoarder(Game), print('mina in boarder'), Moves = [], !) ; (
+    %!,
     getCharTurn(Game, Char),
     getBoardWithChars(Game, Board),
-    valid_moves(Board, Char, Moves),
+    valid_moves(Board, Char, Moves), !,
     nl, print('Next to play: '), print(Char),
     nl, print('Possible moves -> '), print(Moves),
     length(Moves, L),
     nl, print('Number of moves: '), print(L),
-    L > 0).
+    L > 0.
 
-letBotPlay(OldGameState, NewGameState) :-
-    valid_moves(OldGameState, Moves),
+letBotPlay(OldGameState, Moves, NewGameState) :-
     length(Moves, L),
     L > 0,
     getBot(OldGameState, Difficulty),

@@ -8,7 +8,7 @@ printColumnGuide :- write('|   | a | b | c | d | e | f | g | h | i |').
 printRowValues([]).
 printRowValues([Value | OtherValues]) :-
     write(' '),
-    (Value == 'X' -> print('*') ; print(Value)),
+    (Value == 'X' -> print('+') ; print(Value)),
     write(' |'),
     printRowValues(OtherValues).
 
