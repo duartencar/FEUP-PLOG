@@ -43,7 +43,11 @@ getHumanPlay(OldGameState, PossibleMoves, NewGameState) :-
     convertToMatrixCoords(Coords, NewCoords),
     validPlay(PossibleMoves, NewCoords),
     updateBoard(OldGameState, Board, NewBoard, NewCoords),
-    updateGame(OldGameState, NewGameState, NewBoard, NewCoords).
+    move(OldGameState, Board, NewGameState, NewCoords).
+
+move(OldGame, OldBoard, NewGame, NewCoords) :-
+    updateBoard(OldGame, OldBoard, NewBoard, NewCoords),
+    updateGame(OldGame, NewGame, NewBoard, NewCoords).
 
 validPlay(Moves, Play) :-
     member(Play, Moves).
