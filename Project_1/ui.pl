@@ -158,5 +158,15 @@ printBoardWithChars(Game) :-
     printBoard(Board).
 
 
-helpMenu :- write('help!!!!!'), nl.
+% helpMenu :-
+%   clearConsole,
+%   write('-------------------- Basic game flow ---------------------'), nl, nl, nl,
+%   write(' One player plays Yuki and the other player plays Mina. In the end of the ﬁrst round, the players must switch characters, making a total of two rounds.'), nl, nl,
+%   write('The Yuki player starts by putting Yuki wherever he wants, eating the tree that is in the selected position.'), nl,
+%   write('Then Mina player, puts Mina wherever on any other tree that is not in Yuki’s line of sight.It must be at least one tree between Yuki and Mina along an imaginary straight line connecting both places.'),nl,
+%   write('After that, starting with Yuki, players alternate turns.'), nl,
+%   nl, pressEnterToContinue.
+
+
+
 clearConsole :- write('\e[2J').

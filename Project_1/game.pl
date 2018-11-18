@@ -21,8 +21,8 @@ getGameForSecondRound(OldGame, Winner, NewGame) :-
     (
     Gmode == 'playerVplayer' -> (Winner == 'player1' -> NewGame = [B, 1, 0, [-1,-1], [-1, -1], 'yuki', 'playerVplayer'];
                                                         NewGame = [B, 0, 1, [-1,-1], [-1, -1], 'yuki', 'playerVplayer']) ;
-                                (getBot(OldGame, Bot), Winner == 'player1' -> NewGame = [B, 1, 0, [-1,-1], [-1, -1], 'yuki', 'playerVplayer', Bot];
-                                                                              NewGame = [B, 0, 1, [-1,-1], [-1, -1], 'yuki', 'playerVplayer', Bot])
+                                (getBot(OldGame, Bot), Winner == 'player1' -> NewGame = [B, 1, 0, [-1,-1], [-1, -1], 'yuki', 'botVplayer', Bot];
+                                                                              NewGame = [B, 0, 1, [-1,-1], [-1, -1], 'yuki', 'botVplayer', Bot])
 
     ).
 
@@ -183,22 +183,20 @@ updateBoard(OldGame, OldBoard, NewBoard, NewCoords) :-
     ).
 
  updateAuxBoard(OldBoard, NewBoard, NewCoords, Char) :-
-     nl,print('CHANGING -> '), NewCoords, nl,
-     Char == 'yuki',
-     getX(NewCoords, NX),
-     getY(NewCoords, NY),
-     findYuki(OldBoard, X, Y),
-     (areCoordsValid([X,Y]), replace(OldBoard, X, Y, 'O', AB), replace(AB, NX, NY, 'Y', NewBoard)) ;
-     replace(OldBoard, NX, NY, 'Y', NewBoard).
-
- updateAuxBoard(OldBoard, NewBoard, NewCoords, Char) :-
-     Char == 'mina',
+     Char == 'mina', !,
      getX(NewCoords, NX),
      getY(NewCoords, NY),
      findMina(OldBoard, X, Y),
-     print(NewCoords), nl, print([X,Y]),nl,
-     (areCoordsValid([X,Y]), replace(OldBoard, X, Y, 'X', AB), replace(AB, NX, NY, 'M', NewBoard)) ;
-     replace(OldBoard, NX, NY, 'M', NewBoard).
+     ((areCoordsValid([X,Y]), replace(OldBoard, Y, X, 'X', AB), replace(AB, NY, NX, 'M', NewBoard)) ;
+     replace(OldBoard, NY, NX, 'M', NewBoard)).%, nl, print('OLD BOARD'), printBoard(OldBoard), nl, print('NEW BOARD'), printBoard(NewBoard), nl.
+
+updateAuxBoard(OldBoard, NewBoard, NewCoords, Char) :-
+  Char == 'yuki', !,
+  getX(NewCoords, NX),
+  getY(NewCoords, NY),
+  (findYuki(OldBoard, X, Y) ; X is -1, Y is -1),
+  ((areCoordsValid([X,Y]), replace(OldBoard, Y, X, 'O', AB), replace(AB, NY, NX, 'Y', NewBoard)) ;
+  replace(OldBoard, NY, NX, 'Y', NewBoard)).%, nl, print('OLD BOARD'), printBoard(OldBoard), nl, print('NEW BOARD'), printBoard(NewBoard), nl.
 
 updateGame(OldGame, UpdatedGame, NewBoard, NewCoords) :-
     length(OldGame, L),

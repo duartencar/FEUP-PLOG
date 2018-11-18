@@ -38,7 +38,9 @@ checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     %nl, print('STEPS -> '), print([StepX, StepY]),
     FirstX is round(NX + StepX),
     FirstY is round(NY + StepY),
-    findall(Elem, getElemntsInALine(Board, StepX, StepY, EX, EY, NX, NY, Elem), R),
+    LastX is round(EX - StepX),
+    LastY is round(EY - StepY),
+    findall(Elem, getElemntsInALine(Board, StepX, StepY, LastX, LastY, FirstX, FirstY, Elem), R),
     member('X', R).
     %nl, print('R Trees -> '), print(R).
 
@@ -192,6 +194,13 @@ isYukiFirstMove(Board) :- not(findYuki(Board, X, Y)).
 
 isMinaFirstMove(Board) :- not(findMina(Board, X, Y)).
 
+getDistanceBetweenChar(Board, Distance) :-
+    findMina(Board, MX, MY),
+    findYuki(Board, YX, YY),
+    DiffX is MX-YX,
+    DiffY is MY-YY,
+    Distance is round(sqrt(DiffX*DiffX + DiffY*DiffY)).
+
 gameOver(Board, Winner):-
     valid_moves(Board, 'mina', Moves),
     length(Moves, L),
@@ -207,7 +216,7 @@ gameOver(Board, Winner) :-
 value(Board, Char, Value) :-
     gameOver(Board, Winner),
     Winner == Char,
-    Value is 100000, !.
+    Value is 1000000, !.
 
 value(Board, Char, Value) :-
     enemy(Char, Enemy),
@@ -222,25 +231,65 @@ value(Board, Char, Value) :-
     length(YukiMoves, NumberOfYukiMoves),
     length(MinaMoves, NumberOfMinaMoves),
     findEatenTrees(Board, NumberOfEatenTrees),
-    Value is (NumberOfYukiMoves * 1000 - NumberOfMinaMoves * 500 - NumberOfEatenTrees * 100), !.
+    getDistanceBetweenChar(Board, Distance),
+    Value is (NumberOfYukiMoves * 2000 - NumberOfMinaMoves * 700 - NumberOfEatenTrees * 100 - Distance*500).
+    % ,
+    % nl, print('yuki moves ->'), print(NumberOfYukiMoves * 1000),
+    % nl, print('mina moves ->'), print(NumberOfMinaMoves * 500),
+    % nl, print('eaten trees ->'), print(NumberOfEatenTrees * 100),
+    % nl, print('distance ->'), print(Distance * 100).
 
 value(Board, Char, Value) :-
     Char == 'mina',
-    valid_moves(Board, Char, YukiMoves),
-    valid_moves(Board, 'yuki', MinaMoves),
+    valid_moves(Board, Char, MinaMoves),
+    valid_moves(Board, 'yuki', YukiMoves),
     length(YukiMoves, NumberOfYukiMoves),
     length(MinaMoves, NumberOfMinaMoves),
     findEatenTrees(Board, NumberOfEatenTrees),
-    Value is (NumberOfMinaMoves * 1000 - NumberOfYukiMoves * 400 + NumberOfEatenTrees * 100), !.
+    getDistanceBetweenChar(Board, Distance),
+    Value is (NumberOfMinaMoves * 1000 - NumberOfYukiMoves * 700 + NumberOfEatenTrees * 20 + Distance*500).
+    % ,
+    % nl, print('yuki moves ->'), print(NumberOfYukiMoves * 400),
+    % nl, print('mina moves ->'), print(NumberOfMinaMoves * 1000),
+    % nl, print('eaten trees ->'), print(NumberOfEatenTrees * 100),
+    % nl, print('distance ->'), print(Distance * 100).
 
 getPlayValue(Board, Elem, PlayingChar, Value) :-
     updateAuxBoard(Board, NewB, Elem, PlayingChar),
     value(NewB, PlayingChar, Value).
 
-choose_move(Board, EvaluatedChar, PlayingChar, 0, Move) :-
-     valid_moves(Board, PlayingChar, Moves),
-     nl, print('GOt moves'),
-     findall(Value, (member(Elem, Moves), getPlayValue(Board, Elem, PlayingChar, Value)), R),
-     print('VALUES ->'), print(R).
+getRandomPlay(Moves, SelectedPLay) :-
+    length(Moves, L),
+    Max is L-1,
+    random(0, Max, R),
+    nth0(R, Moves, SelectedPLay),
+    nl, print('PLAY: '), print(R), print(' -> '), print(SelectedPLay).
 
-%choose_move(Board, EvaluatedChar, PlayingChar, Level, Move) :-
+choose_move(Board, PlayingChar, 0, Move) :-
+    valid_moves(Board, PlayingChar, Moves),
+    getRandomPlay(Moves, Move).
+
+choose_move(Board, PlayingChar, 1, Move) :-
+    valid_moves(Board, PlayingChar, Moves),
+    length(Moves, L),
+    evaluateMoveList(Board, PlayingChar, Moves, EvaluationList),
+    %nl, print('Moves -> '), print(Moves),
+    getMaxElemIndex(EvaluationList, PlayIndex),
+    ActualIndex is L-PlayIndex-1,
+    %nl, print('Index -> '), print(PlayIndex),
+    nth0(ActualIndex, Moves, Move),
+    nl, print('PLAY: '), print(ActualIndex), print(' -> '), print(Move).
+
+
+evaluateMoveList(_, _, [], []).
+
+evaluateMoveList(Board, Char, [H|T], ListValueOfMoves) :-
+    evaluateMoveList(Board, Char, T, OtherValues), !,
+    updateAuxBoard(Board, NewBoard, H, Char),
+    value(NewBoard, Char, Evaluation),
+    Levaluation = [Evaluation],
+    append(OtherValues, Levaluation, ListValueOfMoves).
+
+getMaxElemIndex(ListValueOfMoves, Index):-
+    max_member(MaxValue, ListValueOfMoves),
+    nth0(Index, ListValueOfMoves, MaxValue).

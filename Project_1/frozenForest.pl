@@ -42,7 +42,7 @@ getHumanPlay(OldGameState, PossibleMoves, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    clearConsole,
+    %clearConsole,
     printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(OldGameState, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
@@ -50,6 +50,19 @@ getHumanPlay(OldGameState, PossibleMoves, NewGameState) :-
     validPlay(PossibleMoves, NewCoords),
     updateBoard(OldGameState, Board, NewBoard, NewCoords),
     move(OldGameState, Board, NewGameState, NewCoords).
+
+letBotPlay(OldGameState, Moves, NewGameState) :-
+    length(Moves, L),
+    L > 0,
+    getBot(OldGameState, Difficulty),
+    getGameBoard(OldGameState, Board),
+    getBoardWithChars(OldGameState, BoardChars),
+    getCharTurn(OldGameState, Char),
+    repeat,
+    ((Difficulty == 'easy', choose_move(BoardChars, Char, 0, Play)) ; (Difficulty == 'hard', choose_move(BoardChars, Char, 1, Play))), % meter a jogada do bot dificil
+    nl, print('Received -> '), print(Play),nl,
+    validPlay(Moves, Play),
+    move(OldGameState, Board, NewGameState, Play).
 
 move(OldGame, OldBoard, NewGame, NewCoords) :-
     updateBoard(OldGame, OldBoard, NewBoard, NewCoords),
@@ -63,19 +76,11 @@ checkIfnextCharCanMove(Game, Moves) :-
     getBoardWithChars(Game, Board),
     valid_moves(Board, Char, Moves), !,
     nl, print('Next to play: '), print(Char),
-    nl, print('Possible moves -> '), print(Moves),
+    %nl, print('Possible moves -> '), print(Moves),
     length(Moves, L),
     nl, print('Number of moves: '), print(L),
     L > 0,
     nl, print('Value: '), value(Board, Char, Value), print(Value).
-
-letBotPlay(OldGameState, Moves, NewGameState) :-
-    length(Moves, L),
-    L > 0,
-    getBot(OldGameState, Difficulty),
-    ((Difficulty == 'easy', getRandomPlay(Moves, Play)) ; getRandomPlay(Moves, Play)), % meter a jogada do bot dificil
-    getGameBoard(OldGameState, Board),
-    move(OldGameState, Board, NewGameState, Play).
 
 isItEndOfFirstRound(Game) :-
     getPlayerScore(Game, Score1),
@@ -91,12 +96,6 @@ getRoundWinner(Game, Winner) :-
                              (Player == 'player1' -> Winner = 'player2' ; Winner = 'player1')),
     nl, print(Winner), print(' wins the round.').
 
-getRandomPlay(Moves, SelectedPLay) :-
-    length(Moves, L),
-    Max is L-1,
-    random(0, Max, R),
-    nth0(R, Moves, SelectedPLay),
-    nl, print('PLAY: '), print(R), print(' -> '), print(SelectedPLay).
 %TO DO LIST:
   % quando a primeira ronda acaba começa a segunda. DONE
   % quando a segunda ronda acaba, anunciar o vencedor. A METADE
