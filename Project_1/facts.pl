@@ -24,6 +24,8 @@ playerChar('mina', 'player2').
 playerChar('yuki', 'player1').
 playerChar('mina', 'bot').
 
+enemy(Char, Enemy) :- gameChar(Enemy), Enemy \= Char.
+
 factor(1).
 factor(2).
 factor(3).

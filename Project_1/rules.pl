@@ -30,17 +30,17 @@ checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     DiffX is NX - EX,
     DiffY is NY - EY, !,
     notNeighboor(DiffX, DiffY), !,
-    nl, print('DIFFS -> '), print([DiffX, DiffY]),
+    %nl, print('DIFFS -> '), print([DiffX, DiffY]),
     CoPrime is gcd(DiffX, DiffY),
     CoPrime =\= 1,
     StepX is round(DiffX / CoPrime),
     StepY is round(DiffY / CoPrime),
-    nl, print('STEPS -> '), print([StepX, StepY]),
+    %nl, print('STEPS -> '), print([StepX, StepY]),
     FirstX is round(NX + StepX),
     FirstY is round(NY + StepY),
     findall(Elem, getElemntsInALine(Board, StepX, StepY, EX, EY, NX, NY, Elem), R),
-    member('X', R),
-    nl, print('R Trees -> '), print(R).
+    member('X', R).
+    %nl, print('R Trees -> '), print(R).
 
 checkMinaPlanToMove(PreviousCoords, NewCoords) :-
     not(areCoordsValid(PreviousCoords)) ; %in case of first movement
@@ -68,8 +68,8 @@ getElemntsInALine(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY, Elem) :-
 
 isYukiInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     findall(Elem, getElemntsInALine(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY, Elem), R), !,
-    member('Y', R),
-    nl, print('R -> '), print(R).
+    member('Y', R).
+    %nl, print('R -> '), print(R).
 
 yukiIsNotInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY) :-
     not(isYukiInTheMiddle(Board, LeapX, LeapY, XtoTest, YtoTest, GoalX, GoalY)).
@@ -109,13 +109,13 @@ checkIfMinaCanMoveTo(Board, MinaCoords) :-
     findMina(Board, X, Y),
     PreviousMinaCoords = [X, Y],
     not(areCoordsEqual(MinaCoords, YukiCoords)), !,
-    nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords),
+    %nl,print('Evaluating: '),print(PreviousMinaCoords), print(' -> '), print(MinaCoords),
     checkMinaPlanToMove(PreviousMinaCoords, MinaCoords), !, % can move diagonally or ortoganlly has many cases as she wants
-    nl,print('Legal move'), nl,
+    %nl,print('Legal move'), nl,
     checkIfThereIsNotALineOfSight(Board, MinaCoords, YukiCoords), !, % yuki can t have a line of sight
-    nl,print('No line of sight'), nl,
+    %nl,print('No line of sight'), nl,
     checkIfMinaDoestGoAboveYuki(Board, MinaCoords), !.
-    nl,print('DOesn t go above yuki'), nl.
+    %nl,print('DOesn t go above yuki'), nl.
 
 checkIfYukiCanMoveTo(Board, YukiCoords) :-
     isYukiFirstMove(Board) ;
@@ -156,7 +156,7 @@ valid_moves(Board, Char, ListOfMoves) :-
   findall([X, Y], casa(X,Y), ListOfMoves))  % returns all positions
   ; % OR
   (
-  (Char == 'mina', findMina(Board, MX, MY), findall([X, Y], (minaPossibleMoves(MX, MY, X,Y), checkIfMinaCanMoveTo(Board, [X,Y])), Moves), print('DONE')) % Returns all mina possible moves
+  (Char == 'mina', findMina(Board, MX, MY), findall([X, Y], (minaPossibleMoves(MX, MY, X,Y), checkIfMinaCanMoveTo(Board, [X,Y])), Moves)) % Returns all mina possible moves
   ;
   (findall([X, Y], (casa(X,Y), checkIfYukiCanMoveTo(Board, [X,Y])), Moves)) % Returns all yuki possible moves
   ), remove_duplicates(Moves, ListOfMoves). % assures that there are not duplicated members
@@ -175,6 +175,10 @@ findMina(Board, X, Y) :-
     X is -1,
     Y is -1.
 
+findEatenTrees(Board, NumberOfEatenTrees) :-
+    findall(casa(X,Y), (getElementAtCoord(Board, [X,Y], Elem), Elem == 'O'), R),
+    length(R, NumberOfEatenTrees).
+
 isMinaInTheBoarder(Game) :-
   getMinaCoordinates(Game, MC),
   getX(MC, X),
@@ -187,3 +191,56 @@ isMinaInTheBoarder(Game) :-
 isYukiFirstMove(Board) :- not(findYuki(Board, X, Y)).
 
 isMinaFirstMove(Board) :- not(findMina(Board, X, Y)).
+
+gameOver(Board, Winner):-
+    valid_moves(Board, 'mina', Moves),
+    length(Moves, L),
+    L == 0,
+    Winner = 'yuki'.
+
+gameOver(Board, Winner) :-
+    valid_moves(Board, 'yuki', Moves),
+    length(Moves, L),
+    L == 0,
+    Winner = 'mina'.
+
+value(Board, Char, Value) :-
+    gameOver(Board, Winner),
+    Winner == Char,
+    Value is 100000, !.
+
+value(Board, Char, Value) :-
+    enemy(Char, Enemy),
+    gameOver(Board, Winner),
+    Winner == Enemy,
+    Value is 0, !.
+
+value(Board, Char, Value) :-
+    Char == 'yuki',
+    valid_moves(Board, Char, YukiMoves),
+    valid_moves(Board, 'mina', MinaMoves),
+    length(YukiMoves, NumberOfYukiMoves),
+    length(MinaMoves, NumberOfMinaMoves),
+    findEatenTrees(Board, NumberOfEatenTrees),
+    Value is (NumberOfYukiMoves * 1000 - NumberOfMinaMoves * 500 - NumberOfEatenTrees * 100), !.
+
+value(Board, Char, Value) :-
+    Char == 'mina',
+    valid_moves(Board, Char, YukiMoves),
+    valid_moves(Board, 'yuki', MinaMoves),
+    length(YukiMoves, NumberOfYukiMoves),
+    length(MinaMoves, NumberOfMinaMoves),
+    findEatenTrees(Board, NumberOfEatenTrees),
+    Value is (NumberOfMinaMoves * 1000 - NumberOfYukiMoves * 400 + NumberOfEatenTrees * 100), !.
+
+getPlayValue(Board, Elem, PlayingChar, Value) :-
+    updateAuxBoard(Board, NewB, Elem, PlayingChar),
+    value(NewB, PlayingChar, Value).
+
+choose_move(Board, EvaluatedChar, PlayingChar, 0, Move) :-
+     valid_moves(Board, PlayingChar, Moves),
+     nl, print('GOt moves'),
+     findall(Value, (member(Elem, Moves), getPlayValue(Board, Elem, PlayingChar, Value)), R),
+     print('VALUES ->'), print(R).
+
+%choose_move(Board, EvaluatedChar, PlayingChar, Level, Move) :-

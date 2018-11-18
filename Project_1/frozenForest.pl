@@ -16,12 +16,13 @@ playGame(G) :-
     length(Moves, L),
     L > 0,
     getPlayerToPlay(G, Player),
-    (((Player == 'player1' ; Player == 'player2'), nl, print('TO play -> '), print(Player), getHumanPlay(G, Moves, NG)) ;
-    (Player == 'bot', nl, print('TO play -> '), print(Player), letBotPlay(G, Moves, NG), printBoardWithChars(NG), pressEnterToContinue)),
+    (((Player == 'player1' ; Player == 'player2'), getHumanPlay(G, Moves, NG)) ;
+    (Player == 'bot', letBotPlay(G, Moves, NG), printBoardWithChars(NG), pressEnterToContinue)),
     playGame(NG).
 
 playGame(G) :-
     isItEndOfFirstRound(G),
+    clearConsole,
     printBoardWithChars(G),
     getRoundWinner(G, Winner),
     pressEnterToContinue,
@@ -29,14 +30,19 @@ playGame(G) :-
     playGame(NG), !.
 
 playGame(G) :-
-    nl, print('End of the game.'), nl,
-    pressEnterToContinue, !.
+    (getGameWinner(G, Winner),
+    clearConsole,
+    printBoardWithChars(G),
+    nl, print('End of the game.'),
+    nl, print('Winner is '), print(Winner), print(.), nl,
+    pressEnterToContinue, !) ;
+    (clearConsole, printBoardWithChars(G), nl, print('It s a draw'), nl, pressEnterToContinue , !).
 
 getHumanPlay(OldGameState, PossibleMoves, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    %clearConsole,
+    clearConsole,
     printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(OldGameState, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),
@@ -53,8 +59,6 @@ validPlay(Moves, Play) :-
     member(Play, Moves).
 
 checkIfnextCharCanMove(Game, Moves) :-
-    %(areCharsNeighboors(Game), isMinaInTheBoarder(Game), print('mina in boarder'), Moves = [], !) ; (
-    %!,
     getCharTurn(Game, Char),
     getBoardWithChars(Game, Board),
     valid_moves(Board, Char, Moves), !,
@@ -62,7 +66,8 @@ checkIfnextCharCanMove(Game, Moves) :-
     nl, print('Possible moves -> '), print(Moves),
     length(Moves, L),
     nl, print('Number of moves: '), print(L),
-    L > 0.
+    L > 0,
+    nl, print('Value: '), value(Board, Char, Value), print(Value).
 
 letBotPlay(OldGameState, Moves, NewGameState) :-
     length(Moves, L),
@@ -70,15 +75,12 @@ letBotPlay(OldGameState, Moves, NewGameState) :-
     getBot(OldGameState, Difficulty),
     ((Difficulty == 'easy', getRandomPlay(Moves, Play)) ; getRandomPlay(Moves, Play)), % meter a jogada do bot dificil
     getGameBoard(OldGameState, Board),
-    updateBoard(OldGameState, Board, NewBoard, Play),
-    updateGame(OldGameState, NewGameState, NewBoard, Play).
-
+    move(OldGameState, Board, NewGameState, Play).
 
 isItEndOfFirstRound(Game) :-
     getPlayerScore(Game, Score1),
     getPlayer2Score(Game, Score2),
     Sum is Score1 + Score2,
-    nl, print('Score sum = '), print(Sum), nl,
     Sum =:= 0.
 
 getRoundWinner(Game, Winner) :-
@@ -88,7 +90,6 @@ getRoundWinner(Game, Winner) :-
     Gmode == 'botVplayer' -> (Player == 'player1' -> Winner = 'bot'; Winner = 'player1') ;
                              (Player == 'player1' -> Winner = 'player2' ; Winner = 'player1')),
     nl, print(Winner), print(' wins the round.').
-
 
 getRandomPlay(Moves, SelectedPLay) :-
     length(Moves, L),

@@ -1,8 +1,6 @@
 lineGuides([1, 2, 3, 4, 5, 6, 7, 8, 9]).
 rowGuides(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']).
 
-
-
 printColumnGuide :- write('|   | a | b | c | d | e | f | g | h | i |').
 
 printRowValues([]).
@@ -18,10 +16,8 @@ printBoardEndOrBegin :- write('-----------------------------------------').
 
 printBoardDivisory :- write('|---|---|---|---|---|---|---|---|---|---|').
 
-
 printRestOfTheBoard([], []).
 printRestOfTheBoard([Row | OtherRows], [Identifier | OtherIdentifiers]) :- printBoardRow(Row, Identifier), nl, printBoardDivisory, nl, printRestOfTheBoard(OtherRows, OtherIdentifiers).
-
 
 printBoard(Board) :- nl, printBoardEndOrBegin, nl, printColumnGuide, nl, printBoardDivisory, nl, lineGuides(RI), printRestOfTheBoard(Board, RI), nl.
 
@@ -131,7 +127,6 @@ getCoord(Coords) :-
     write('Insert line: '),
     getInt(Line),
     Coords = [Col, Line].
-
 
 askPlayerToInsertPlay(Game, Coords) :-
     getPlayerToPlay(Game, Player),

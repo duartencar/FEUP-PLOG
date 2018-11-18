@@ -26,6 +26,18 @@ getGameForSecondRound(OldGame, Winner, NewGame) :-
 
     ).
 
+getGameWinner(Game, Winner) :-
+    getCharTurn(Game, Char),
+    getGameMode(Game, Mode),
+    getPlayerScore(Game, Score),
+    getPlayer2Score(Game,Score2),
+    TotalScore is Score + Score2,
+    TotalScore =:= 1,
+    ((Char == 'mina', NewScore2 is Score2 + 1, NewScore1 is Score) ;
+    (Char == 'yuki', NewScore2 is Score2, NewScore1 is Score + 1)),
+    ((NewScore1 > NewScore2, Winner is 'player1') ;
+    (NewScore2 > NewScore1, Mode == 'playerVplayer', Winner is 'player2') ;
+    (NewScore2 > NewScore1, Mode == 'botVplayer', Winner is 'bot')).
 
 getGameBoard(G, Board) :- nth0(0, G, Board).
 
@@ -40,8 +52,6 @@ getPlayer2Score(G, Score) :- nth0(2, G, Score).
 getBotScore(G, Score) :- nth0(2, G, Score).
 
 getYukiCoordinates(G, Coords) :- nth0(3, G, Coords).
-
-%isYukiFirstMove(G) :- getYukiCoordinates(G, Coords), not(areCoordsValid(Coords)).
 
 getMinaCoordinates(G, Coords) :- nth0(4, G, Coords).
 
@@ -60,15 +70,13 @@ getY(Coords, Y) :- nth0(1, Coords, Y).
 getPlayerToPlay(G, P) :-
     getCharTurn(G, Char),
     getGameMode(G, Gmode),
-    print('Mode -> '), print(Gmode), nl,
     getPlayerScore(G, S1),
     getPlayer2Score(G, S2),
     Sum is S1+S2,
-    print('Sum -> '), print(Sum), nl,
     (
       Sum =:= 0 -> (Char == 'yuki' -> P = 'player1' ; (Gmode == 'playerVplayer' -> P = 'player2' ; P = 'bot')) ;
       (Char == 'mina' -> P = 'player1' ; (Gmode == 'playerVplayer' -> P = 'player2' ; P = 'bot'))
-    ), print('NEXT -> '), print(P), nl.
+    ).
 
 
 areCoordsValid(Coords) :-
@@ -94,7 +102,7 @@ areCharsNeighboors(Game) :-
     ((DiffX =:= 0 , DiffY =:= 1);
      (DiffX =:= 1 , DiffY =:= 0);
      (DiffX =:= 1 , DiffY =:= DiffX)
-    ), print('Char s are neighboors.').
+    ).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,11 +138,7 @@ convertToMatrixCoords(Coords, ConvertedCoords) :-
     getX(Coords, X),
     NewY is Y-1,
     convertXValue(X, NewX),
-    ConvertedCoords = [NewX, NewY],
-    nl,
-    print('Converted: '),
-    print(ConvertedCoords),
-    nl.
+    ConvertedCoords = [NewX, NewY].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % replace a single cell in a list-of-lists
@@ -169,29 +173,34 @@ remove_duplicates([H | T], [H|T1]) :-
     \+member(H, T),
     remove_duplicates( T, T1).
 
-rowN([H|_],1,H):-!.
-rowN([_|T],I,X) :-
-    I1 is I-1,
-    rowN(T,I1,X).
-
-columnN([],_,[]).
-columnN([H|T], I, [R|X]):-
-    rowN(H, I, R),
-    columnN(T,I,X).
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 updateBoard(OldGame, OldBoard, NewBoard, NewCoords) :-
-    print('udating board'),
     getCharTurn(OldGame, Char),
     getX(NewCoords, X),
     getY(NewCoords, Y),
     (
         Char = 'yuki' -> replace(OldBoard, Y, X, 'O', NewBoard);  NewBoard = OldBoard %if it s yuki the tree is eaten
-    ),
-    print('updated').
+    ).
+
+ updateAuxBoard(OldBoard, NewBoard, NewCoords, Char) :-
+     nl,print('CHANGING -> '), NewCoords, nl,
+     Char == 'yuki',
+     getX(NewCoords, NX),
+     getY(NewCoords, NY),
+     findYuki(OldBoard, X, Y),
+     (areCoordsValid([X,Y]), replace(OldBoard, X, Y, 'O', AB), replace(AB, NX, NY, 'Y', NewBoard)) ;
+     replace(OldBoard, NX, NY, 'Y', NewBoard).
+
+ updateAuxBoard(OldBoard, NewBoard, NewCoords, Char) :-
+     Char == 'mina',
+     getX(NewCoords, NX),
+     getY(NewCoords, NY),
+     findMina(OldBoard, X, Y),
+     print(NewCoords), nl, print([X,Y]),nl,
+     (areCoordsValid([X,Y]), replace(OldBoard, X, Y, 'X', AB), replace(AB, NX, NY, 'M', NewBoard)) ;
+     replace(OldBoard, NX, NY, 'M', NewBoard).
 
 updateGame(OldGame, UpdatedGame, NewBoard, NewCoords) :-
-    print('updating game'),
     length(OldGame, L),
     getPlayerScore(OldGame, P1Score),
     getPlayer2Score(OldGame, P2Score),
