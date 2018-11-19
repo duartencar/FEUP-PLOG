@@ -30,19 +30,17 @@ checkIfThereIsNotALineOfSight(Board, NewCoords, EnemyCoords) :-
     DiffX is NX - EX,
     DiffY is NY - EY, !,
     notNeighboor(DiffX, DiffY), !,
-    %nl, print('DIFFS -> '), print([DiffX, DiffY]),
     CoPrime is gcd(DiffX, DiffY),
     CoPrime =\= 1,
     StepX is round(DiffX / CoPrime),
     StepY is round(DiffY / CoPrime),
-    %nl, print('STEPS -> '), print([StepX, StepY]),
     FirstX is round(NX + StepX),
     FirstY is round(NY + StepY),
     LastX is round(EX - StepX),
     LastY is round(EY - StepY),
     findall(Elem, getElemntsInALine(Board, StepX, StepY, LastX, LastY, FirstX, FirstY, Elem), R),
     member('X', R).
-    %nl, print('R Trees -> '), print(R).
+  %  nl, print('R Trees -> '), print(R).
 
 checkMinaPlanToMove(PreviousCoords, NewCoords) :-
     not(areCoordsValid(PreviousCoords)) ; %in case of first movement
@@ -124,28 +122,29 @@ checkIfYukiCanMoveTo(Board, YukiCoords) :-
     (
     findYuki(Board, X, Y),
     PreviousYukiCoords = [X, Y],
+    %nl, print('Previous ->'), print(PreviousYukiCoords),
+    %nl, print('Next ->'), print(YukiCoords),
     findMina(Board, MX, MY),
-    MinaCoords = [MX, MY],
+    MinaCoords = [MX, MY], !,
     checkIfThereIsATree(Board, YukiCoords), % must eat a tree
+    %nl, print('There is a tree'),
     checkYukiPlanToMove(PreviousYukiCoords, YukiCoords), % can only move diagonally or ortoganlly one case
-    not(checkIfThereIsNotALineOfSight(Board, YukiCoords, MinaCoords))). % must have a line of sight
+    %nl, print('ortoganly or diagonally'),
+    not(checkIfThereIsNotALineOfSight(Board, YukiCoords, MinaCoords))).
+    %nl, print('Not a line of sight')). % must have a line of sight
 
 minaPossibleMoves(X, Y, X1, Y1) :-
     (not(areCoordsValid([X,Y])), casa(X1, Y1)) ;
-    casa(X1, Y1),
+    (casa(X1, Y1),
     DiffX is abs(X-X1),
     DiffY is abs(Y-Y1),
     ((DiffX =:= 0 , DiffY  >  0);
      (DiffX >   0 , DiffY =:= 0);
      (DiffX >   0 , DiffY =:= DiffX)
-    ).
+    )).
 
-yukiPossibleMoves(Game, X1, Y1) :-
-    getYukiCoordinates(Game, Coords),
-    getX(Coords, X),
-    getY(Coords, Y),
+yukiPossibleMoves(X, Y, X1, Y1) :-
     casa(X1, Y1),
-    isItATree(Game, X1, Y1),
     DiffX is abs(X-X1),
     DiffY is abs(Y-Y1),
     ((DiffX =:= 0 , DiffY =:= 1);
@@ -160,7 +159,7 @@ valid_moves(Board, Char, ListOfMoves) :-
   (
   (Char == 'mina', findMina(Board, MX, MY), findall([X, Y], (minaPossibleMoves(MX, MY, X,Y), checkIfMinaCanMoveTo(Board, [X,Y])), Moves)) % Returns all mina possible moves
   ;
-  (findall([X, Y], (casa(X,Y), checkIfYukiCanMoveTo(Board, [X,Y])), Moves)) % Returns all yuki possible moves
+  (findYuki(Board, YX, YY), findall([X, Y], (yukiPossibleMoves(YX, YY, X, Y), checkIfYukiCanMoveTo(Board, [X,Y])), Moves)) % Returns all yuki possible moves
   ), remove_duplicates(Moves, ListOfMoves). % assures that there are not duplicated members
 
 findYuki(Board, X, Y) :-
@@ -277,8 +276,8 @@ choose_move(Board, PlayingChar, 1, Move) :-
     getMaxElemIndex(EvaluationList, PlayIndex),
     ActualIndex is L-PlayIndex-1,
     %nl, print('Index -> '), print(PlayIndex),
-    nth0(ActualIndex, Moves, Move),
-    nl, print('PLAY: '), print(ActualIndex), print(' -> '), print(Move).
+    nth0(ActualIndex, Moves, Move).
+    %nl, print('PLAY: '), print(ActualIndex), print(' -> '), print(Move).
 
 
 evaluateMoveList(_, _, [], []).

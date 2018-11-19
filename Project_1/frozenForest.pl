@@ -17,7 +17,7 @@ playGame(G) :-
     L > 0,
     getPlayerToPlay(G, Player),
     (((Player == 'player1' ; Player == 'player2'), getHumanPlay(G, Moves, NG)) ;
-    (Player == 'bot', letBotPlay(G, Moves, NG), printBoardWithChars(NG), pressEnterToContinue)),
+    (Player == 'bot', letBotPlay(G, Moves, NG))),
     playGame(NG).
 
 playGame(G) :-
@@ -42,7 +42,7 @@ getHumanPlay(OldGameState, PossibleMoves, NewGameState) :-
     getPlayerToPlay(OldGameState, Player), % s e é p1 ou p2
     getGameBoard(OldGameState, Board),
     repeat,
-    %clearConsole,
+    clearConsole,
     printBoardWithChars(OldGameState),
     askPlayerToInsertPlay(OldGameState, Coords), % notifica um dos jogadores
     checkIfCoordsAreValid(Coords),

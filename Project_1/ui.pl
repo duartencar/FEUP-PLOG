@@ -139,17 +139,17 @@ askPlayerToInsertPlay(Game, Coords) :-
     getCoord(Coords).
 
 getBoardWithChars(Game, AfterYuki) :-
-    getGameBoard(Game, Board),
-    getMinaCoordinates(Game, Mcoords),
-    getYukiCoordinates(Game, Ycoords),
-    getX(Mcoords, MX),
-    getY(Mcoords, MY),
-    (
+    getGameBoard(Game, Board), % get the latest board representation
+    getMinaCoordinates(Game, Mcoords), % get Mina coordinates
+    getYukiCoordinates(Game, Ycoords), % get Yuki coordinates
+    getX(Mcoords, MX), % get X value from mina coordinates
+    getY(Mcoords, MY), % get Y value from mina coordinates
+    ( % if coords are valid insert mina letter in position, if not let as it is
         areCoordsValid(Mcoords) -> replace(Board, MY, MX, 'M', AfterMina); AfterMina = Board
     ),
-    getX(Ycoords, YX),
-    getY(Ycoords, YY),
-    (
+    getX(Ycoords, YX), % get X value from yuki coordinates
+    getY(Ycoords, YY), % get Y value from yuki coordinates
+    ( % if coords are valid insert yuki letter in position, if not let as it is
         areCoordsValid(Ycoords) -> replace(AfterMina, YY, YX, 'Y', AfterYuki); AfterYuki = AfterMina
     ).
 
