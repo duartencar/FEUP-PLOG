@@ -12,8 +12,7 @@ index(10).
 index(11).
 index(12).
 
-value('X', 0).
-value(0, 0).
+%value('X', 0).
 value(1, 1).
 value(2, 2).
 value(3, 3).
@@ -23,6 +22,10 @@ value(6, 6).
 value(7, 7).
 value(8, 8).
 value(9, 9).
+value(0, 0).
+value(10, 0).
+value(11, 0).
+value(12, 0).
 
 triangle(1).
 triangle(3).
@@ -38,11 +41,32 @@ square(6).
 square(8).
 square(10).
 
+hexagon(12).
+
 % ['X', 4, 'X', 7, 6, 3, 'X', 5, 9, 8, 'X', 2, 1]
 
 simpleDod(X) :-
-  X = [6, 33, 45, 11, 22, 10].
+  X = [
+      [6, 33, 45, 11, 22, 10],
+      [15, 3, 7, 11, 45, 33],
+      [45, 11, 17, 13, 9, 11]].
 
-solveSimpleDod(Dod, Answer) :-
-  length(S, 13),
-  all_distinct(S).
+possibleAnswer(X) :- X = [12, 4, 11, 7, 6, 3, 10, 5, 9, 8, 0, 2, 1].
+
+shadedSquare(List, Index) :-
+  square(Index),
+  nth0(Index, List, Elem),
+  value(Elem, 0).
+
+shadedTriangle(List, Index) :-
+  triangle(Index),
+  nth0(Index, List, Elem),
+  value(Elem, 0).
+
+shadedHexagon(List):-
+  nth0(12, List, Elem),
+  value(Elem, 0).
+
+valueOfElem(List, Index, Value) :-
+  nth0(Index, List, Elem),
+  value(Elem, Value).
