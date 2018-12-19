@@ -3,6 +3,37 @@
 :- include('facts.pl').
 :- include('rules.pl').
 
+sumStar(1):-
+  firstProblem(X),
+  reset_timer,
+  solveSimpleCase(X, R),
+  print_time,
+  fd_statistics,
+  printSolutions(R).
+
+sumStar(2):-
+  secondProblem(X),
+  reset_timer,
+  solveSimpleCase(X, R),
+  print_time,
+  fd_statistics,
+  printSolutions(R).
+
+getAllSolutionsForFirst:-
+  firstProblem(X),
+  reset_timer,
+  findall(R, (solveSimpleCase(X, R), nl, print(R)), _),
+  print_time,
+  fd_statistics.
+
+getAllSolutionsForSecond:-
+  secondProblem(X),
+  reset_timer,
+  findall(R, solveSimpleCase(X, R), _),
+  %findall(R, (solveSimpleCase(X, R), nl, print(R)), L),
+  print_time,
+  fd_statistics.
+
 reset_timer :- statistics(walltime,_).
 print_time :-
   statistics(walltime,[_,T]),
@@ -27,15 +58,10 @@ solveSimpleCase(ListOfLists, R):-
   doubleRestrictions(2, SumList3, [C, A]),
   tripleRestriction(SumList1, [A, B, C]),
   crossListShadedEdges([A, B, C]),
-  shadedCenterNoShadedSquares(A),
-  shadedCenterNoShadedSquares(B),
-  shadedCenterNoShadedSquares(C),
-  % shadedDoesntShareEdge(A),
-  % shadedDoesntShareEdge(B),
-  % shadedDoesntShareEdge(C),
+  shadedDontShareEdge(A),
+  shadedDontShareEdge(B),
+  shadedDontShareEdge(C),
   append(A, B, LT),
-  append(LT, C, R),
-  labeling([], R),
-  nl, print('A: '), printSolution(A),
-  nl, print('B: '), printSolution(B),
-  nl, print('C: '), printSolution(C),nl.
+  append(LT, C, S),
+  labeling([], S),
+  R = [A, B, C].

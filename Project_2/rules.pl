@@ -8,30 +8,39 @@ getSumOfList([H|T], Sum) :-
   value(H, V),
   Sum #= OtherSum + V.
 
-shadedCenterNoShadedSquares(List):-
-  element(13, List, Center),
-  Center #= 0,
-  element(1, List, L1),
-  element(3, List, L2),
-  element(5, List, L3),
-  element(7, List, L4),
-  element(9, List, L5),
-  element(11, List, L6),
-  Center + L1 #\= 0,
-  Center + L2 #\= 0,
-  Center + L3 #\= 0,
-  Center + L4 #\= 0,
-  Center + L5 #\= 0,
-  Center + L6 #\= 0.
+% repeated([]) :- fail.
 
-shadedCenterNoShadedSquares(List):-
-  element(13, List, Center),
-  Center #\= 0.
+notrepeated([H|T]):- not(element(X, T, H)), !, print(H), notrepeated(T).
 
-shadedDontShareEdge(List, 11):-
-  element(11, List, 0).
+% repeated([H|T]):- repeated(T).
 
-simpleRestrictions(0, SumList, [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13]):-
+shadedCenterNoShadedSquares([A1, _, A3, _, A5, _, A7, _, A9, _, A11, _, A13]):-
+  A13 #\= A1,
+  A13 #\= A3,
+  A13 #\= A5,
+  A13 #\= A7,
+  A13 #\= A9,
+  A13 #\= A11.
+
+shadedSquareNoShadedTriangle([A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, _]):-
+  A1 #\= A2,
+  A2 #\= A3,
+  A3 #\= A4,
+  A4 #\= A5,
+  A5 #\= A6,
+  A6 #\= A7,
+  A7 #\= A8,
+  A8 #\= A9,
+  A9 #\= A10,
+  A10 #\= A11,
+  A11 #\= A12,
+  A12 #\= A11.
+
+shadedDontShareEdge(List):-
+  shadedSquareNoShadedTriangle(List),
+  shadedCenterNoShadedSquares(List).
+
+simpleRestrictions(0, SumList, [A1, A2, _, _, _, _, _, A8, A9, A10, A11, A12, _]):-
   nth0(0, SumList, Restriction1),
   nth0(4, SumList, Restriction2),
   nth0(5, SumList, Restriction3),
@@ -39,7 +48,7 @@ simpleRestrictions(0, SumList, [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A1
   A8 + A9 + A10 #= Restriction2,
   A12 + A11 + A10 #= Restriction3.
 
-simpleRestrictions(1, SumList, [B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13]):-
+simpleRestrictions(1, SumList, [B1, B2, B3, B4, B5, B6, _, _, _, _, _, B12, _]):-
   nth0(0, SumList, Restriction1),
   nth0(1, SumList, Restriction2),
   nth0(2, SumList, Restriction3),
@@ -47,7 +56,7 @@ simpleRestrictions(1, SumList, [B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B1
   B2 + B3 + B4 #= Restriction2,
   B4 + B5 + B6 #= Restriction3.
 
-simpleRestrictions(2, SumList, [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13]):-
+simpleRestrictions(2, SumList, [_, _, _, C4, C5, C6, C7, C8, C9, C10, _, _, _]):-
   nth0(2, SumList, Restriction1),
   nth0(3, SumList, Restriction2),
   nth0(4, SumList, Restriction3),
@@ -111,7 +120,7 @@ crossListShadedEdges([A, B, C]) :-
   VB1 + VC1 #\= 0,
   VC2 + VA2 #\= 0.
 
-validAnswerList(List) :-
+validAnswer(List) :-
   getSumOfList(List, Sum),
   Sum #= 45,
   shadedDoesntShareEdge(List).
