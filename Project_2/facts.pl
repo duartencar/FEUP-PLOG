@@ -51,7 +51,11 @@ simpleDod(X) :-
       [15, 3, 7, 11, 45, 33],
       [45, 11, 17, 13, 9, 11]].
 
-possibleAnswer(X) :- X = [12, 4, 11, 7, 6, 3, 10, 5, 9, 8, 0, 2, 1].
+possibleAnswerOne(X) :- X = [12, 4, 11, 7, 6, 3, 10, 5, 9, 8, 0, 2, 1].
+
+possibleAnswerTwo(X) :- X = [6, 0, 3, 10, 7, 11, 1, 2, 4, 8, 5, 9, 12].
+
+possibleAnswerThree(X) :- X = [9, 5, 0, 3, 8, 6, 10, 7, 11, 2, 12, 1, 4].
 
 shadedSquare(List, Index) :-
   square(Index),
@@ -70,3 +74,19 @@ shadedHexagon(List):-
 valueOfElem(List, Index, Value) :-
   nth0(Index, List, Elem),
   value(Elem, Value).
+
+printSolution([]) :- nl.
+
+printSolution([H|T]) :-
+	value(H, 0),
+	print('X'),
+	printSolution(T).
+printSolution([H|T]) :-
+	print(H),
+	printSolution(T).
+
+printSolutions([]).
+
+printSolutions([H|T]):-
+	printSolution(H),
+	printSolutions(T).
