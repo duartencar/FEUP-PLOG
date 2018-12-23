@@ -8,18 +8,19 @@ getSumOfList([H|T], Sum) :-
   value(H, V),
   Sum #= OtherSum + V.
 
-notRepeatedInSum([A4, A5, A6, B8, B9, B10, C1, C2, C12]):-	
-  A4 #\= B8, A4 #\= B9, A4 #\= B10,
-  A5 #\= B8, A5 #\= B9, A5 #\= B10,
-  A6 #\= B8, A6 #\= B9, A6 #\= B10,
-  A4 #\= C1, A4 #\= C2, A4 #\= C12,
-  A5 #\= C1, A5 #\= C2, A5 #\= C12,
-  A6 #\= C1, A6 #\= C2, A6 #\= C12,
-  
-  B8 #\= C1, B8 #\= C2, B8 #\= C12,
-  B9 #\= C1, B9 #\= C2, B9 #\= C12,
-  B10 #\= C1, B10 #\= C2, B10 #\= C12.
-  
+notRepeatedInSum2([A1, A2, B1, B2]):-
+  ((A1 #\= 0, A1 #\= B1, A1 #\= B2) ; A1 #= 0),
+  ((A2 #\= 0, A2 #\= B1, A2 #\= B2) ; A2 #= 0).
+
+notRepeatedInSum([A4, A5, A6, B8, B9, B10, C1, C2, C12]):-
+  ((A4 #\= 0, A4 #\= B8, A4 #\= B9, A4 #\= B10, A4 #\= C1, A4 #\= C2, A4 #\= C12) ; (A4 #= 0, A4 #\= B10)),
+  ((A5 #\= 0, A5 #\= B8, A5 #\= B9, A5 #\= B10, A5 #\= C1, A5 #\= C2, A5 #\= C12) ; A5 #= 0),
+  ((A6 #\= 0, A6 #\= B8, A6 #\= B9, A6 #\= B10, A6 #\= C1, A6 #\= C2, A6 #\= C12) ; (A6 #= 0, A6 #\= C12)),
+
+  ((B8 #\= 0, B8 #\= C1, B8 #\= C2, B8 #\= C12) ; (B8 #= 0, B8 #\= C2)),
+  ((B9 #\= 0, B9 #\= C1, B9 #\= C2, B9 #\= C12) ; B9 #= 0),
+  ((B10 #\= 0, B10 #\= C1, B10 #\= C2, B10 #\= C12) ;  B10 #= 0).
+
 
 shadedCenterNoShadedSquares([A1, _, A3, _, A5, _, A7, _, A9, _, A11, _, A13]):-
   A13 #\= A1,
@@ -73,11 +74,6 @@ simpleRestrictions(2, SumList, [_, _, _, C4, C5, C6, C7, C8, C9, C10, _, _, _]):
 
 % Restrições duplas em ciclo, começando pelo canto superior esquerdo
 
-notRepeatedInSum2([A1, A2, A3, B1, B2, B3]):-
-  A1 #\= B1, A1 #\= B2, A1 #\= B3,
-  A2 #\= B1, A2 #\= B2, A2 #\= B3,
-  A3 #\= B1, A3 #\= B2, A3 #\= B3.
-
 doubleRestrictions(0, SumList, [A, B]) :-
   nth0(1, SumList, Restriction),
   element(2, A, V1),
@@ -86,7 +82,7 @@ doubleRestrictions(0, SumList, [A, B]) :-
   element(12, B, V4),
   element(11, B, V5),
   element(10, B, V6),
-  %notRepeatedInSum2([V1, V2, V3, V4, V5, V6]),
+  notRepeatedInSum2([V1, V2, V4, V5]),
   V1+V2+V3+V4+V5+V6 #= Restriction.
 
 doubleRestrictions(1, SumList, [B, C]) :-
@@ -97,7 +93,7 @@ doubleRestrictions(1, SumList, [B, C]) :-
   element(2, C, V4),
   element(3, C, V5),
   element(4, C, V6),
-  %notRepeatedInSum2([V1, V2, V3, V4, V5, V6]),
+  notRepeatedInSum2([V2, V3, V5, V6]),
   V1+V2+V3+V4+V5+V6 #= Restriction.
 
 doubleRestrictions(2, SumList, [C, A]) :-
@@ -108,7 +104,7 @@ doubleRestrictions(2, SumList, [C, A]) :-
   element(6, A, V4),
   element(7, A, V5),
   element(8, A, V6),
-  %notRepeatedInSum2([V1, V2, V3, V4, V5, V6]),
+  notRepeatedInSum2([V2, V3, V4, V5]),
   V1+V2+V3+V4+V5+V6 #= Restriction.
 
 tripleRestriction(SumList, [A, B, C]) :-
@@ -122,7 +118,7 @@ tripleRestriction(SumList, [A, B, C]) :-
   element(1, C, V7),
   element(2, C, V8),
   element(12, C, V9),
-  notRepeatedInSum([V1, V2, V3, V4, V5, V6, V7, V8, V9]), 
+  notRepeatedInSum([V1, V2, V3, V4, V5, V6, V7, V8, V9]),
   V1+V2+V3+V4+V5+V6+V7+V8+V9 #= Restriction.
 
 crossListShadedEdges([A, B, C]) :-
