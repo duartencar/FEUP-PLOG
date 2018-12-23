@@ -1,6 +1,4 @@
 
-% ['X', 4, 'X', 7, 6, 3, 'X', 5, 9, 8, 'X', 2, 1]
-
 firstProblem(ListOfLists) :-
   ListOfLists = [
                 [6, 33, 45, 11, 22, 10],

@@ -33,7 +33,6 @@ getAllSolutionsForSecond:-
   secondProblem(X),
   reset_timer,
   findall(R, (solveSimpleCase(X, R), nl, print(R)), _),
-  %findall(R, (solveSimpleCase(X, R), nl, print(R)), L),
   print_time,
   fd_statistics.
 

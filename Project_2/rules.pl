@@ -131,8 +131,3 @@ crossListShadedEdges([A, B, C]) :-
   VA1 + VB2 #\= 0,
   VB1 + VC1 #\= 0,
   VC2 + VA2 #\= 0.
-
-validAnswer(List) :-
-  getSumOfList(List, Sum),
-  Sum #= 45,
-  shadedDoesntShareEdge(List).
