@@ -10,7 +10,7 @@ sumStar(1):-
   solveSimpleCase(X, R),
   print_time,
   fd_statistics,
-  printSolutions(R).
+  printSolutions(['A', 'B', 'C'], R).
 
 sumStar(2):-
   secondProblem(X),
@@ -18,7 +18,7 @@ sumStar(2):-
   solveSimpleCase(X, R),
   print_time,
   fd_statistics,
-  printSolutions(R).
+  printSolutions(['A', 'B', 'C'], R).
 
 getAllSolutionsForFirst:-
   firstProblem(X),

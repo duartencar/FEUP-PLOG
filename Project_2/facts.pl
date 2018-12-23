@@ -24,15 +24,17 @@ printSolution([]) :- nl.
 
 printSolution([H|T]) :-
 	H =:= 0,
-  print('X'),
+  print(' X'),
 	printSolution(T).
 
 printSolution([H|T]) :-
+  print(' '),
 	print(H),
 	printSolution(T).
 
-printSolutions([]).
+printSolutions(_, []).
 
-printSolutions([H|T]):-
-	printSolution(H),
-	printSolutions(T).
+printSolutions([H1|T1], [H|T]):-
+  nl, print(H1), print(': '),
+	printSolution(H), nl,
+	printSolutions(T1, T).
